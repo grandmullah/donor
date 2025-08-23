@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import Web3Provider from "@/components/Web3Provider";
+import Header from "@/components/Header";
+import { Toaster } from "react-hot-toast";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,7 +28,41 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        {children}
+        <Web3Provider>
+          <Header />
+          {children}
+          <Toaster
+            position="top-right"
+            toastOptions={{
+              duration: 4000,
+              style: {
+                background: "rgba(255, 255, 255, 0.1)",
+                backdropFilter: "blur(20px)",
+                color: "#ffffff",
+                border: "1px solid rgba(255, 255, 255, 0.2)",
+                borderRadius: "12px",
+              },
+              success: {
+                iconTheme: {
+                  primary: "#22c55e",
+                  secondary: "#ffffff",
+                },
+              },
+              error: {
+                iconTheme: {
+                  primary: "#ef4444",
+                  secondary: "#ffffff",
+                },
+              },
+              loading: {
+                iconTheme: {
+                  primary: "#667eea",
+                  secondary: "#ffffff",
+                },
+              },
+            }}
+          />
+        </Web3Provider>
       </body>
     </html>
   );

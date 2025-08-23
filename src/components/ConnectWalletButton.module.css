@@ -1,0 +1,13 @@
+.button {
+  composes: btn from global;
+}
+
+.primary {
+  composes: btn-primary from global;
+}
+
+.outline {
+  composes: btn-outline from global;
+}
+
+
