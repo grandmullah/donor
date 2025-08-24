@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { useWallet } from "@/contexts/WalletContext";
 import { getBrowserProvider, getContract } from "@/lib/eth";
 import BloodDonorSystemABI from "@/lib/abis/BloodDonorSystem";
@@ -13,7 +13,7 @@ type DonorInfo = {
   donationCount: number;
   donorTier: number;
   consistencyScore: number;
-  hasCompleteResearchProfile: boolean;
+  // hasCompleteResearchProfile: boolean; // RESEARCH FUNCTIONALITY COMMENTED OUT
   isRegistered: boolean;
   totalRewardsEarned: string;
   rewardsRedeemed: string;
@@ -21,12 +21,23 @@ type DonorInfo = {
   lastDonationDate: number;
 };
 
-type ResearchConsent = {
-  researchInstitution: string;
-  grantedDate: number;
-  revokedDate: number;
-  isActive: boolean;
-  researchPurpose: string;
+// RESEARCH TYPE COMMENTED OUT
+// type ResearchConsent = {
+//   researchInstitution: string;
+//   grantedDate: number;
+//   revokedDate: number;
+//   isActive: boolean;
+//   researchPurpose: string;
+// };
+
+type DonationRecord = {
+  recordHash: string;
+  timestamp: number;
+  bloodUnit: string;
+  feedbackProvided: boolean;
+  hemoglobinLevel: number;
+  volume: number;
+  index: number;
 };
 
 type DonorSummary = {
@@ -34,7 +45,7 @@ type DonorSummary = {
   donor: DonorInfo;
   historyLength: number;
   availableRewards: string;
-  consents: ResearchConsent[];
+  // consents: ResearchConsent[]; // RESEARCH FUNCTIONALITY COMMENTED OUT
 } | null;
 
 export default function DonorPage() {
@@ -50,11 +61,18 @@ export default function DonorPage() {
   const [feedbackRating, setFeedbackRating] = useState<string>("5");
   const [feedbackHash, setFeedbackHash] = useState<string>("");
 
-  // Research consent states
-  const [researchInstitution, setResearchInstitution] = useState<string>("");
-  const [researchPurpose, setResearchPurpose] = useState<string>("");
+  // RESEARCH CONSENT STATES COMMENTED OUT
+  // const [researchInstitution, setResearchInstitution] = useState<string>("");
+  // const [researchPurpose, setResearchPurpose] = useState<string>("");
 
   const [summary, setSummary] = useState<DonorSummary>(null);
+
+  // Donation history states
+  const [donationHistory, setDonationHistory] = useState<DonationRecord[]>([]);
+  const [loadingHistory, setLoadingHistory] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [recordsPerPage] = useState(10);
+  const [showDetailedHistory, setShowDetailedHistory] = useState(false);
 
   const anonId = useMemo(
     () => summary?.anonymousId as string | undefined,
@@ -211,6 +229,8 @@ export default function DonorPage() {
     }
   };
 
+  // RESEARCH FUNCTION COMMENTED OUT
+  /*
   const handleGrantConsent = async () => {
     if (!ENV.BLOOD_DONOR_SYSTEM_ADDRESS) return;
 
@@ -256,7 +276,10 @@ export default function DonorPage() {
       setLoading(false);
     }
   };
+  */
 
+  // RESEARCH FUNCTION COMMENTED OUT
+  /*
   const handleRevokeConsent = async (institution: string) => {
     if (!ENV.BLOOD_DONOR_SYSTEM_ADDRESS) return;
 
@@ -297,6 +320,7 @@ export default function DonorPage() {
       setLoading(false);
     }
   };
+  */
 
   const handleRedeem = async () => {
     if (!ENV.BLOOD_DONOR_SYSTEM_ADDRESS || !summary) return;
@@ -331,9 +355,12 @@ export default function DonorPage() {
     return new Date(timestamp * 1000).toLocaleDateString();
   };
 
+  // RESEARCH FUNCTION COMMENTED OUT
+  /*
   const formatAddress = (addr: string) => {
     return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
   };
+  */
 
   const copyToClipboard = async (text: string, label: string) => {
     try {
@@ -343,6 +370,122 @@ export default function DonorPage() {
       console.error("Failed to copy:", error);
       toast.error("Failed to copy to clipboard");
     }
+  };
+
+  const fetchDonationHistory = useCallback(async () => {
+    if (!ENV.BLOOD_DONOR_SYSTEM_ADDRESS || !summary?.anonymousId) return;
+
+    setLoadingHistory(true);
+    try {
+      const provider = await getBrowserProvider();
+      const sys = getContract(
+        ENV.BLOOD_DONOR_SYSTEM_ADDRESS,
+        BloodDonorSystemABI,
+        provider
+      );
+
+      const historyLength = summary.historyLength;
+      const records: DonationRecord[] = [];
+
+      // Fetch all donation records
+      for (let i = 0; i < historyLength; i++) {
+        try {
+          const record = await sys.donationRecords(summary.anonymousId, i);
+          records.push({
+            recordHash: record.recordHash,
+            timestamp: Number(record.timestamp),
+            bloodUnit: record.bloodUnit,
+            feedbackProvided: record.feedbackProvided,
+            hemoglobinLevel: Number(record.hemoglobinLevel),
+            volume: Number(record.volume),
+            index: i,
+          });
+        } catch (error) {
+          console.error(`Error fetching record ${i}:`, error);
+        }
+      }
+
+      // Sort by timestamp (newest first)
+      records.sort((a, b) => b.timestamp - a.timestamp);
+      setDonationHistory(records);
+      setShowDetailedHistory(true);
+    } catch (error) {
+      console.error("Error fetching donation history:", error);
+      toast.error("Failed to fetch donation history");
+    } finally {
+      setLoadingHistory(false);
+    }
+  }, [summary?.anonymousId, summary?.historyLength]);
+
+  // Auto-load history when history tab is accessed for the first time
+  useEffect(() => {
+    if (
+      activeTab === "history" &&
+      summary &&
+      summary.historyLength > 0 &&
+      donationHistory.length === 0 &&
+      !loadingHistory &&
+      !showDetailedHistory
+    ) {
+      // Auto-load history for users with donations
+      fetchDonationHistory();
+    }
+  }, [
+    activeTab,
+    summary,
+    donationHistory.length,
+    loadingHistory,
+    showDetailedHistory,
+    fetchDonationHistory,
+  ]);
+
+  const formatAddress = (address: string) => {
+    return `${address.slice(0, 6)}...${address.slice(-4)}`;
+  };
+
+  const formatDateTime = (timestamp: number) => {
+    return new Date(timestamp * 1000).toLocaleString();
+  };
+
+  const exportDonationHistory = () => {
+    if (donationHistory.length === 0) {
+      toast.error("No donation history to export");
+      return;
+    }
+
+    const csvContent = [
+      [
+        "Date",
+        "Blood Unit",
+        "Volume (ml)",
+        "Hemoglobin (g/dL)",
+        "Feedback Given",
+        "Record Hash",
+      ],
+      ...donationHistory.map((record) => [
+        formatDateTime(record.timestamp),
+        formatAddress(record.bloodUnit),
+        record.volume.toString(),
+        (record.hemoglobinLevel / 10).toFixed(1), // Convert from mg/dL to g/dL
+        record.feedbackProvided ? "Yes" : "No",
+        record.recordHash,
+      ]),
+    ]
+      .map((row) => row.join(","))
+      .join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `donation-history-${
+      new Date().toISOString().split("T")[0]
+    }.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    toast.success("Donation history exported successfully! 📄");
   };
 
   return (
@@ -406,7 +549,7 @@ export default function DonorPage() {
             {[
               { id: "overview", label: "Overview", icon: "📊" },
               { id: "feedback", label: "Feedback", icon: "⭐" },
-              { id: "consent", label: "Research Consent", icon: "🔬" },
+              // { id: "consent", label: "Research Consent", icon: "🔬" }, // RESEARCH TAB COMMENTED OUT
               { id: "history", label: "History", icon: "📈" },
             ].map((tab) => (
               <button
@@ -467,6 +610,7 @@ export default function DonorPage() {
                       </span>
                     </div>
                   </div>
+                  {/* RESEARCH PROFILE COMMENTED OUT
                   <div className={styles.profileCard}>
                     <div className={styles.profileIcon}>✅</div>
                     <div className={styles.profileInfo}>
@@ -480,6 +624,7 @@ export default function DonorPage() {
                       </span>
                     </div>
                   </div>
+                  */}
                 </div>
               </div>
 
@@ -538,12 +683,14 @@ export default function DonorPage() {
                       Available Rewards (BDT)
                     </span>
                   </div>
+                  {/* RESEARCH CONSENTS COMMENTED OUT
                   <div className={styles.statCard}>
                     <span className={styles.statValue}>
                       {summary.consents.length}
                     </span>
                     <span className={styles.statLabel}>Research Consents</span>
                   </div>
+                  */}
                   <div className={styles.statCard}>
                     <span className={styles.statValue}>
                       {summary.donor.totalRewardsEarned}
@@ -662,7 +809,7 @@ export default function DonorPage() {
             </div>
           )}
 
-          {/* Research Consent Tab */}
+          {/* RESEARCH CONSENT TAB COMMENTED OUT
           {activeTab === "consent" && (
             <>
               <div className={styles.card}>
@@ -775,62 +922,266 @@ export default function DonorPage() {
               </div>
             </>
           )}
+          */}
 
           {/* History Tab */}
           {activeTab === "history" && (
-            <div className={styles.card}>
-              <h2 className={styles.cardTitle}>
-                <span className={styles.cardIcon}>📈</span>
-                Donation History
-              </h2>
-              <div className={styles.historyStats}>
-                <div className={styles.historyStatCard}>
-                  <span className={styles.historyStatValue}>
-                    {summary.historyLength}
-                  </span>
-                  <span className={styles.historyStatLabel}>
-                    Total Donations
-                  </span>
-                </div>
-                <div className={styles.historyStatCard}>
-                  <span className={styles.historyStatValue}>
-                    {summary.donor.consistencyScore}%
-                  </span>
-                  <span className={styles.historyStatLabel}>
-                    Consistency Score
-                  </span>
-                </div>
-                <div className={styles.historyStatCard}>
-                  <span className={styles.historyStatValue}>
-                    {tierNames[summary.donor.donorTier]}
-                  </span>
-                  <span className={styles.historyStatLabel}>Current Tier</span>
-                </div>
-              </div>
-              {summary.historyLength === 0 ? (
-                <div className={styles.emptyState}>
-                  <p>
-                    No donations recorded yet. Visit a blood unit to make your
-                    first donation!
-                  </p>
-                </div>
-              ) : (
-                <div className={styles.historyInfo}>
-                  <p className={styles.description}>
-                    You have {summary.historyLength} donation
-                    {summary.historyLength !== 1 ? "s" : ""} on record. Detailed
-                    donation records are available through the blood unit portal
-                    where your donations were processed.
-                  </p>
-                  <div className={styles.actionButtons}>
-                    <button className={styles.button}>
-                      View Detailed History
-                    </button>
-                    <button className={styles.button}>Export Data</button>
+            <>
+              {/* Statistics Card */}
+              <div className={styles.card}>
+                <h2 className={styles.cardTitle}>
+                  <span className={styles.cardIcon}>📈</span>
+                  Donation Statistics
+                </h2>
+                <div className={styles.historyStats}>
+                  <div className={styles.historyStatCard}>
+                    <span className={styles.historyStatValue}>
+                      {summary.historyLength}
+                    </span>
+                    <span className={styles.historyStatLabel}>
+                      Total Donations
+                    </span>
+                  </div>
+                  <div className={styles.historyStatCard}>
+                    <span className={styles.historyStatValue}>
+                      {summary.donor.consistencyScore}%
+                    </span>
+                    <span className={styles.historyStatLabel}>
+                      Consistency Score
+                    </span>
+                  </div>
+                  <div className={styles.historyStatCard}>
+                    <span className={styles.historyStatValue}>
+                      {tierNames[summary.donor.donorTier]}
+                    </span>
+                    <span className={styles.historyStatLabel}>
+                      Current Tier
+                    </span>
+                  </div>
+                  <div className={styles.historyStatCard}>
+                    <span className={styles.historyStatValue}>
+                      {summary.donor.firstDonationDate > 0
+                        ? formatDate(summary.donor.firstDonationDate)
+                        : "N/A"}
+                    </span>
+                    <span className={styles.historyStatLabel}>
+                      First Donation
+                    </span>
                   </div>
                 </div>
-              )}
-            </div>
+              </div>
+
+              {/* History Controls */}
+              <div className={styles.card}>
+                <h2 className={styles.cardTitle}>
+                  <span className={styles.cardIcon}>📋</span>
+                  Donation History
+                </h2>
+
+                {summary.historyLength === 0 ? (
+                  <div className={styles.emptyState}>
+                    <p>
+                      No donations recorded yet. Visit a blood unit to make your
+                      first donation!
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    <div className={styles.historyControls}>
+                      <p className={styles.description}>
+                        You have {summary.historyLength} donation
+                        {summary.historyLength !== 1 ? "s" : ""} on record.
+                        {showDetailedHistory
+                          ? " View your detailed donation history below:"
+                          : ""}
+                      </p>
+                      <div className={styles.actionButtons}>
+                        {!showDetailedHistory ? (
+                          <button
+                            className={`${styles.primaryButton} ${
+                              loadingHistory ? styles.loading : ""
+                            }`}
+                            onClick={fetchDonationHistory}
+                            disabled={loadingHistory}
+                          >
+                            {loadingHistory
+                              ? "Loading..."
+                              : "View Detailed History"}
+                          </button>
+                        ) : (
+                          <button
+                            className={styles.button}
+                            onClick={() => setShowDetailedHistory(false)}
+                          >
+                            Hide Details
+                          </button>
+                        )}
+                        <button
+                          className={styles.button}
+                          onClick={exportDonationHistory}
+                          disabled={donationHistory.length === 0}
+                        >
+                          Export Data
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Detailed History Display */}
+                    {showDetailedHistory && donationHistory.length > 0 && (
+                      <div className={styles.historyDetails}>
+                        <div className={styles.historyHeader}>
+                          <h3>Detailed Donation Records</h3>
+                          <span className={styles.recordCount}>
+                            {donationHistory.length} record
+                            {donationHistory.length !== 1 ? "s" : ""}
+                          </span>
+                        </div>
+
+                        <div className={styles.donationRecords}>
+                          {donationHistory
+                            .slice(
+                              (currentPage - 1) * recordsPerPage,
+                              currentPage * recordsPerPage
+                            )
+                            .map((record) => (
+                              <div
+                                key={record.index}
+                                className={styles.donationRecord}
+                              >
+                                <div className={styles.recordHeader}>
+                                  <div className={styles.recordNumber}>
+                                    #{record.index + 1}
+                                  </div>
+                                  <div className={styles.recordDate}>
+                                    {formatDateTime(record.timestamp)}
+                                  </div>
+                                  <div
+                                    className={`${styles.recordStatus} ${
+                                      record.feedbackProvided
+                                        ? styles.complete
+                                        : styles.pending
+                                    }`}
+                                  >
+                                    {record.feedbackProvided
+                                      ? "✅ Feedback Given"
+                                      : "⏳ Feedback Pending"}
+                                  </div>
+                                </div>
+
+                                <div className={styles.recordDetails}>
+                                  <div className={styles.recordDetail}>
+                                    <span className={styles.detailLabel}>
+                                      Blood Unit:
+                                    </span>
+                                    <span className={styles.detailValue}>
+                                      {formatAddress(record.bloodUnit)}
+                                      <button
+                                        className={styles.copyButton}
+                                        onClick={() =>
+                                          copyToClipboard(
+                                            record.bloodUnit,
+                                            "Blood unit address"
+                                          )
+                                        }
+                                        title="Copy full address"
+                                      >
+                                        📋
+                                      </button>
+                                    </span>
+                                  </div>
+
+                                  <div className={styles.recordDetail}>
+                                    <span className={styles.detailLabel}>
+                                      Volume:
+                                    </span>
+                                    <span className={styles.detailValue}>
+                                      {record.volume} ml
+                                    </span>
+                                  </div>
+
+                                  <div className={styles.recordDetail}>
+                                    <span className={styles.detailLabel}>
+                                      Hemoglobin:
+                                    </span>
+                                    <span className={styles.detailValue}>
+                                      {(record.hemoglobinLevel / 10).toFixed(1)}{" "}
+                                      g/dL
+                                    </span>
+                                  </div>
+
+                                  <div className={styles.recordDetail}>
+                                    <span className={styles.detailLabel}>
+                                      Record Hash:
+                                    </span>
+                                    <span className={styles.detailValue}>
+                                      {record.recordHash.slice(0, 10)}...
+                                      {record.recordHash.slice(-8)}
+                                      <button
+                                        className={styles.copyButton}
+                                        onClick={() =>
+                                          copyToClipboard(
+                                            record.recordHash,
+                                            "Record hash"
+                                          )
+                                        }
+                                        title="Copy full hash"
+                                      >
+                                        📋
+                                      </button>
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                        </div>
+
+                        {/* Pagination */}
+                        {donationHistory.length > recordsPerPage && (
+                          <div className={styles.pagination}>
+                            <button
+                              className={styles.paginationButton}
+                              onClick={() =>
+                                setCurrentPage((prev) => Math.max(prev - 1, 1))
+                              }
+                              disabled={currentPage === 1}
+                            >
+                              Previous
+                            </button>
+                            <span className={styles.paginationInfo}>
+                              Page {currentPage} of{" "}
+                              {Math.ceil(
+                                donationHistory.length / recordsPerPage
+                              )}
+                            </span>
+                            <button
+                              className={styles.paginationButton}
+                              onClick={() =>
+                                setCurrentPage((prev) =>
+                                  Math.min(
+                                    prev + 1,
+                                    Math.ceil(
+                                      donationHistory.length / recordsPerPage
+                                    )
+                                  )
+                                )
+                              }
+                              disabled={
+                                currentPage ===
+                                Math.ceil(
+                                  donationHistory.length / recordsPerPage
+                                )
+                              }
+                            >
+                              Next
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            </>
           )}
         </div>
       )}

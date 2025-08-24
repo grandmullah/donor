@@ -9,17 +9,16 @@ export default function Home() {
         <div className={styles.heroContent}>
           <h1 className={styles.heroTitle}>Revolutionizing Blood Donation</h1>
           <p className={styles.heroSubtitle}>
-            A blockchain-powered platform that rewards donors, enables research,
-            and saves lives through transparent, privacy-focused blood donation
-            management.
+            A blockchain-powered platform that rewards donors and saves lives
+            through transparent, privacy-focused blood donation management.
           </p>
           <div className={styles.heroButtons}>
             <Link href="/donor" className={styles.ctaPrimary}>
               Start Donating
             </Link>
-            <Link href="/research" className={styles.ctaButton}>
+            {/* <Link href="/research" className={styles.ctaButton}>
               For Researchers
-            </Link>
+            </Link> */}
           </div>
         </div>
       </section>
@@ -47,19 +46,19 @@ export default function Home() {
               <div className={styles.featureIcon}>🔒</div>
               <h3 className={styles.featureTitle}>Privacy Protected</h3>
               <p className={styles.featureDescription}>
-                Your data is anonymized and secured. You control what research
-                institutions can access.
+                Your data is anonymized and secured with full privacy
+                protection.
               </p>
             </div>
 
-            <div className={styles.featureCard}>
+            {/* <div className={styles.featureCard}>
               <div className={styles.featureIcon}>🔬</div>
               <h3 className={styles.featureTitle}>Enable Research</h3>
               <p className={styles.featureDescription}>
                 Help advance medical research while maintaining full control
                 over your data sharing preferences.
               </p>
-            </div>
+            </div> */}
 
             <div className={styles.featureCard}>
               <div className={styles.featureIcon}>📊</div>
@@ -103,10 +102,10 @@ export default function Home() {
               <div className={styles.statNumber}>50K+</div>
               <div className={styles.statLabel}>Donations Recorded</div>
             </div>
-            <div className={styles.statItem}>
+            {/* <div className={styles.statItem}>
               <div className={styles.statNumber}>25+</div>
               <div className={styles.statLabel}>Research Partners</div>
-            </div>
+            </div> */}
             <div className={styles.statItem}>
               <div className={styles.statNumber}>1M+</div>
               <div className={styles.statLabel}>Lives Impacted</div>
@@ -148,14 +147,14 @@ export default function Home() {
               </p>
             </div>
 
-            <div className={styles.stepCard}>
+            {/* <div className={styles.stepCard}>
               <div className={styles.stepNumber}>4</div>
               <h3 className={styles.stepTitle}>Enable Research</h3>
               <p className={styles.stepDescription}>
                 Optionally grant research institutions access to your anonymized
                 data to advance medical science.
               </p>
-            </div>
+            </div> */}
           </div>
         </div>
       </section>

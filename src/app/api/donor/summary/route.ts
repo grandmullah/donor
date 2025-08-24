@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
             const donor = await sys.donors(anonId);
             const historyLen = await sys.getDonationHistoryLength(anonId);
             const availableRewards = await sys.getAvailableRewards(anonId);
-            const consents = await sys.getResearchConsents(anonId);
+            // const consents = await sys.getResearchConsents(anonId); // RESEARCH FUNCTIONALITY COMMENTED OUT
 
             return NextResponse.json({
                   anonymousId: anonId,
@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
                         donationCount: Number(donor.donationCount),
                         donorTier: Number(donor.donorTier),
                         consistencyScore: Number(donor.consistencyScore),
-                        hasCompleteResearchProfile: donor.hasCompleteResearchProfile,
+                        // hasCompleteResearchProfile: donor.hasCompleteResearchProfile, // RESEARCH FUNCTIONALITY COMMENTED OUT
                         isRegistered: donor.isRegistered,
                         totalRewardsEarned: donor.totalRewardsEarned.toString(),
                         rewardsRedeemed: donor.rewardsRedeemed.toString(),
@@ -34,22 +34,23 @@ export async function GET(req: NextRequest) {
                   },
                   historyLength: Number(historyLen),
                   availableRewards: availableRewards.toString(),
-                  consents: consents.map((consent: unknown) => {
-                        const c = consent as {
-                              researchInstitution: string;
-                              grantedDate: bigint;
-                              revokedDate: bigint;
-                              isActive: boolean;
-                              researchPurpose: string;
-                        };
-                        return {
-                              researchInstitution: c.researchInstitution,
-                              grantedDate: Number(c.grantedDate),
-                              revokedDate: Number(c.revokedDate),
-                              isActive: c.isActive,
-                              researchPurpose: c.researchPurpose,
-                        };
-                  }),
+                  // RESEARCH FUNCTIONALITY COMMENTED OUT
+                  // consents: consents.map((consent: unknown) => {
+                  //       const c = consent as {
+                  //             researchInstitution: string;
+                  //             grantedDate: bigint;
+                  //             revokedDate: bigint;
+                  //             isActive: boolean;
+                  //             researchPurpose: string;
+                  //       };
+                  //       return {
+                  //             researchInstitution: c.researchInstitution,
+                  //             grantedDate: Number(c.grantedDate),
+                  //             revokedDate: Number(c.revokedDate),
+                  //             isActive: c.isActive,
+                  //             researchPurpose: c.researchPurpose,
+                  //       };
+                  // }),
             });
       } catch (e: unknown) {
             const message = e instanceof Error ? e.message : "failed";

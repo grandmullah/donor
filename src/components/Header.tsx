@@ -58,7 +58,7 @@ export default function Header() {
           <nav className={styles.nav}>
             <Link href="/donor">Donor</Link>
             <Link href="/blood-unit">Blood Unit</Link>
-            <Link href="/research">Research</Link>
+            {/* <Link href="/research">Research</Link> */}
             <Link href="/admin">Admin</Link>
           </nav>
         </div>

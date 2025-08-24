@@ -1,14 +1,27 @@
-"use client";
+// "use client";
 
-import { useState, useEffect } from "react";
-import { useWallet } from "@/contexts/WalletContext";
-import { getBrowserProvider, getPublicProvider, getContract } from "@/lib/eth";
-import DonorDAOGovernanceABI from "@/lib/abis/DonorDAOGovernance";
-import BloodDonorSystemABI from "@/lib/abis/BloodDonorSystem";
-import { ENV } from "@/lib/env";
-import styles from "./page.module.css";
+// import { useState, useEffect } from "react";
+// import { useWallet } from "@/contexts/WalletContext";
+// import { getBrowserProvider, getPublicProvider, getContract } from "@/lib/eth";
+// import DonorDAOGovernanceABI from "@/lib/abis/DonorDAOGovernance";
+// import BloodDonorSystemABI from "@/lib/abis/BloodDonorSystem";
+// import { ENV } from "@/lib/env";
+// import styles from "./page.module.css";
 
+// RESEARCH FUNCTIONALITY COMMENTED OUT
 export default function ResearchPage() {
+  return (
+    <main style={{ padding: "2rem", textAlign: "center" }}>
+      <h1>Research Portal</h1>
+      <p>Research functionality is currently disabled.</p>
+      <p>This feature is temporarily unavailable.</p>
+    </main>
+  );
+}
+
+/*
+// ORIGINAL RESEARCH PAGE FUNCTIONALITY - ALL COMMENTED OUT
+function OriginalResearchPage() {
   const { address, switchToAddress } = useWallet();
 
   // Institution verification
@@ -479,417 +492,420 @@ export default function ResearchPage() {
     }
   };
 
-  return (
-    <main className={styles.container}>
-      <div className={styles.hero}>
-        <h1 className={styles.title}>Research Portal</h1>
-        <p className={styles.subtitle}>
-          Verify research institutions and access anonymized blood donation data
-          for medical research
-        </p>
-      </div>
+// ORIGINAL RESEARCH COMPONENT COMMENTED OUT - ALL FUNCTIONALITY DISABLED
 
-      {!address ? (
-        <div className={styles.connectWrapper}>
-          <div className={styles.connectMessage}>
-            <h3>Connect Your Wallet</h3>
-            <p>
-              Please connect your wallet using the button in the header to
-              access the research portal.
-            </p>
-          </div>
-        </div>
-      ) : checkingAccess ? (
-        <div className={styles.connectWrapper}>
-          <div className={styles.connectMessage}>
-            <h3>Verifying Research Access...</h3>
-            <p>Checking your research permissions...</p>
-          </div>
-        </div>
-      ) : (
-        <div className={styles.stack}>
-          {/* Access Status */}
-          <div className={styles.card}>
-            <div className={styles.adminStatus}>
-              <span
-                className={`${styles.adminBadge} ${
-                  isVerifiedResearcher || isInstitutionVerified
-                    ? styles.success
-                    : styles.warning
-                }`}
-              >
-                {isVerifiedResearcher
-                  ? "✅ Verified Researcher"
-                  : isInstitutionVerified
-                  ? "✅ Verified Institution"
-                  : "⚠️ Limited Access"}
-              </span>
-              <span className={styles.adminAddress}>
-                Connected as: {address}
-              </span>
-            </div>
-          </div>
+// return (
+//   <main className={styles.container}>
+//     <div className={styles.hero}>
+//       <h1 className={styles.title}>Research Portal</h1>
+//       <p className={styles.subtitle}>
+//         Verify research institutions and access anonymized blood donation data
+//         for medical research
+//       </p>
+//     </div>
 
-          {/* Institution Verification */}
-          <div className={styles.card}>
-            <h2 className={styles.cardTitle}>
-              <span className={styles.cardIcon}>🔬</span>
-              Institution Verification
-            </h2>
-            <p className={styles.description}>
-              Check if a research institution is verified to access anonymized
-              donor data.
-            </p>
-            <div className={styles.formGrid}>
-              <div className={styles.formField}>
-                <label className={styles.label}>Institution Address</label>
-                <input
-                  className={styles.input}
-                  value={institution}
-                  onChange={(e) => setInstitution(e.target.value)}
-                  placeholder="0x..."
-                />
-              </div>
-            </div>
-            <div className={styles.actionButtons}>
-              <button
-                className={`${styles.primaryButton} ${
-                  loading ? styles.loading : ""
-                }`}
-                onClick={check}
-                disabled={loading || !institution}
-              >
-                {loading ? "Checking..." : "Check Verification"}
-              </button>
-            </div>
-            {verified && (
-              <div
-                className={`${styles.status} ${
-                  verified.includes("✅")
-                    ? styles.success
-                    : verified.includes("❌")
-                    ? styles.error
-                    : ""
-                }`}
-              >
-                {verified}
-              </div>
-            )}
-          </div>
+//     {!address ? (
+//       <div className={styles.connectWrapper}>
+//         <div className={styles.connectMessage}>
+//           <h3>Connect Your Wallet</h3>
+//           <p>
+//             Please connect your wallet using the button in the header to
+//             access the research portal.
+//           </p>
+//         </div>
+//       </div>
+//     ) : checkingAccess ? (
+//       <div className={styles.connectWrapper}>
+//         <div className={styles.connectMessage}>
+//           <h3>Verifying Research Access...</h3>
+//           <p>Checking your research permissions...</p>
+//         </div>
+//       </div>
+//     ) : (
+//       <div className={styles.stack}>
+//         // Access Status
+//         <div className={styles.card}>
+//           <div className={styles.adminStatus}>
+//             <span
+//               className={`${styles.adminBadge} ${
+//                 isVerifiedResearcher || isInstitutionVerified
+//                   ? styles.success
+//                   : styles.warning
+//               }`}
+//             >
+//               {isVerifiedResearcher
+//                 ? "✅ Verified Researcher"
+//                 : isInstitutionVerified
+//                 ? "✅ Verified Institution"
+//                 : "⚠️ Limited Access"}
+//             </span>
+//             <span className={styles.adminAddress}>
+//               Connected as: {address}
+//             </span>
+//           </div>
+//         </div>
 
-          {/* Research Consent Management - For Donors */}
-          <div className={styles.card}>
-            <h2 className={styles.cardTitle}>
-              <span className={styles.cardIcon}>📋</span>
-              Research Consent Management
-            </h2>
-            <p className={styles.description}>
-              Grant or revoke consent for research institutions to access your
-              anonymized data.
-            </p>
+//         // Institution Verification
+//         <div className={styles.card}>
+//           <h2 className={styles.cardTitle}>
+//             <span className={styles.cardIcon}>🔬</span>
+//             Institution Verification
+//           </h2>
+//           <p className={styles.description}>
+//             Check if a research institution is verified to access anonymized
+//             donor data.
+//           </p>
+//           <div className={styles.formGrid}>
+//             <div className={styles.formField}>
+//               <label className={styles.label}>Institution Address</label>
+//               <input
+//                 className={styles.input}
+//                 value={institution}
+//                 onChange={(e) => setInstitution(e.target.value)}
+//                 placeholder="0x..."
+//               />
+//             </div>
+//           </div>
+//           <div className={styles.actionButtons}>
+//             <button
+//               className={`${styles.primaryButton} ${
+//                 loading ? styles.loading : ""
+//               }`}
+//               onClick={check}
+//               disabled={loading || !institution}
+//             >
+//               {loading ? "Checking..." : "Check Verification"}
+//             </button>
+//           </div>
+//           {verified && (
+//             <div
+//               className={`${styles.status} ${
+//                 verified.includes("✅")
+//                   ? styles.success
+//                   : verified.includes("❌")
+//                   ? styles.error
+//                   : ""
+//               }`}
+//             >
+//               {verified}
+//             </div>
+//           )}
+//         </div>
 
-            <div className={styles.subSection}>
-              <h3>Grant Research Consent</h3>
-              <div className={styles.formGrid}>
-                <div className={styles.formField}>
-                  <label className={styles.label}>
-                    Research Institution Address
-                  </label>
-                  <input
-                    className={styles.input}
-                    value={researchInstitution}
-                    onChange={(e) => setResearchInstitution(e.target.value)}
-                    placeholder="0x..."
-                  />
-                </div>
-                <div className={styles.formField}>
-                  <label className={styles.label}>Research Purpose</label>
-                  <textarea
-                    className={styles.input}
-                    value={researchPurpose}
-                    onChange={(e) => setResearchPurpose(e.target.value)}
-                    placeholder="Describe the research purpose..."
-                    rows={3}
-                  />
-                </div>
-              </div>
-              <div className={styles.actionButtons}>
-                <button
-                  className={`${styles.primaryButton} ${
-                    loading ? styles.loading : ""
-                  }`}
-                  onClick={grantResearchConsent}
-                  disabled={loading || !researchInstitution || !researchPurpose}
-                >
-                  {loading ? "Processing..." : "Grant Consent"}
-                </button>
-              </div>
-            </div>
+//         // Research Consent Management - For Donors
+//         <div className={styles.card}>
+//           <h2 className={styles.cardTitle}>
+//             <span className={styles.cardIcon}>📋</span>
+//             Research Consent Management
+//           </h2>
+//           <p className={styles.description}>
+//             Grant or revoke consent for research institutions to access your
+//             anonymized data.
+//           </p>
 
-            <div className={styles.subSection}>
-              <h3>Revoke Research Consent</h3>
-              <div className={styles.formGrid}>
-                <div className={styles.formField}>
-                  <label className={styles.label}>
-                    Institution Address to Revoke
-                  </label>
-                  <input
-                    className={styles.input}
-                    value={revokeInstitution}
-                    onChange={(e) => setRevokeInstitution(e.target.value)}
-                    placeholder="0x..."
-                  />
-                </div>
-              </div>
-              <div className={styles.actionButtons}>
-                <button
-                  className={`${styles.button} ${
-                    loading ? styles.loading : ""
-                  }`}
-                  onClick={revokeResearchConsent}
-                  disabled={loading || !revokeInstitution}
-                >
-                  {loading ? "Processing..." : "Revoke Consent"}
-                </button>
-              </div>
-            </div>
-          </div>
+//           <div className={styles.subSection}>
+//             <h3>Grant Research Consent</h3>
+//             <div className={styles.formGrid}>
+//               <div className={styles.formField}>
+//                 <label className={styles.label}>
+//                   Research Institution Address
+//                 </label>
+//                 <input
+//                   className={styles.input}
+//                   value={researchInstitution}
+//                   onChange={(e) => setResearchInstitution(e.target.value)}
+//                   placeholder="0x..."
+//                 />
+//               </div>
+//               <div className={styles.formField}>
+//                 <label className={styles.label}>Research Purpose</label>
+//                 <textarea
+//                   className={styles.input}
+//                   value={researchPurpose}
+//                   onChange={(e) => setResearchPurpose(e.target.value)}
+//                   placeholder="Describe the research purpose..."
+//                   rows={3}
+//                 />
+//               </div>
+//             </div>
+//             <div className={styles.actionButtons}>
+//               <button
+//                 className={`${styles.primaryButton} ${
+//                   loading ? styles.loading : ""
+//                 }`}
+//                 onClick={grantResearchConsent}
+//                 disabled={loading || !researchInstitution || !researchPurpose}
+//               >
+//                 {loading ? "Processing..." : "Grant Consent"}
+//               </button>
+//             </div>
+//           </div>
 
-          {/* Research Data Access - For Verified Researchers */}
-          {(isVerifiedResearcher || isInstitutionVerified) && (
-            <div className={styles.card}>
-              <h2 className={styles.cardTitle}>
-                <span className={styles.cardIcon}>📊</span>
-                Research Data Access
-              </h2>
-              <p className={styles.description}>
-                Access anonymized blood donation data for approved research
-                purposes.
-              </p>
+//           <div className={styles.subSection}>
+//             <h3>Revoke Research Consent</h3>
+//             <div className={styles.formGrid}>
+//               <div className={styles.formField}>
+//                 <label className={styles.label}>
+//                   Institution Address to Revoke
+//                 </label>
+//                 <input
+//                   className={styles.input}
+//                   value={revokeInstitution}
+//                   onChange={(e) => setRevokeInstitution(e.target.value)}
+//                   placeholder="0x..."
+//                 />
+//               </div>
+//             </div>
+//             <div className={styles.actionButtons}>
+//               <button
+//                 className={`${styles.button} ${
+//                   loading ? styles.loading : ""
+//                 }`}
+//                 onClick={revokeResearchConsent}
+//                 disabled={loading || !revokeInstitution}
+//               >
+//                 {loading ? "Processing..." : "Revoke Consent"}
+//               </button>
+//             </div>
+//           </div>
+//         </div>
 
-              <div className={styles.subSection}>
-                <h3>Access Research Data</h3>
-                <div className={styles.formGrid}>
-                  <div className={styles.formField}>
-                    <label className={styles.label}>Anonymous ID</label>
-                    <input
-                      className={styles.input}
-                      value={anonymousId}
-                      onChange={(e) => setAnonymousId(e.target.value)}
-                      placeholder="0x..."
-                    />
-                  </div>
-                  <div className={styles.formField}>
-                    <label className={styles.label}>Record Index</label>
-                    <input
-                      className={styles.input}
-                      type="number"
-                      value={recordIndex}
-                      onChange={(e) => setRecordIndex(e.target.value)}
-                      placeholder="0"
-                    />
-                  </div>
-                </div>
-                <div className={styles.actionButtons}>
-                  <button
-                    className={`${styles.primaryButton} ${
-                      loading ? styles.loading : ""
-                    }`}
-                    onClick={accessResearchData}
-                    disabled={loading || !anonymousId}
-                  >
-                    {loading ? "Processing..." : "Access Data"}
-                  </button>
-                </div>
-              </div>
+//         // Research Data Access - For Verified Researchers
+//         {(isVerifiedResearcher || isInstitutionVerified) && (
+//           <div className={styles.card}>
+//             <h2 className={styles.cardTitle}>
+//               <span className={styles.cardIcon}>📊</span>
+//               Research Data Access
+//             </h2>
+//             <p className={styles.description}>
+//               Access anonymized blood donation data for approved research
+//               purposes.
+//             </p>
 
-              <div className={styles.subSection}>
-                <h3>Complete Research Profile</h3>
-                <div className={styles.formGrid}>
-                  <div className={styles.formField}>
-                    <label className={styles.label}>Anonymous ID</label>
-                    <input
-                      className={styles.input}
-                      value={profileAnonymousId}
-                      onChange={(e) => setProfileAnonymousId(e.target.value)}
-                      placeholder="0x..."
-                    />
-                  </div>
-                </div>
-                <div className={styles.actionButtons}>
-                  <button
-                    className={`${styles.button} ${
-                      loading ? styles.loading : ""
-                    }`}
-                    onClick={completeResearchProfile}
-                    disabled={loading || !profileAnonymousId}
-                  >
-                    {loading ? "Processing..." : "Complete Profile"}
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
+//             <div className={styles.subSection}>
+//               <h3>Access Research Data</h3>
+//               <div className={styles.formGrid}>
+//                 <div className={styles.formField}>
+//                   <label className={styles.label}>Anonymous ID</label>
+//                   <input
+//                     className={styles.input}
+//                     value={anonymousId}
+//                     onChange={(e) => setAnonymousId(e.target.value)}
+//                     placeholder="0x..."
+//                   />
+//                 </div>
+//                 <div className={styles.formField}>
+//                   <label className={styles.label}>Record Index</label>
+//                   <input
+//                     className={styles.input}
+//                     type="number"
+//                     value={recordIndex}
+//                     onChange={(e) => setRecordIndex(e.target.value)}
+//                     placeholder="0"
+//                   />
+//                 </div>
+//               </div>
+//               <div className={styles.actionButtons}>
+//                 <button
+//                   className={`${styles.primaryButton} ${
+//                     loading ? styles.loading : ""
+//                   }`}
+//                   onClick={accessResearchData}
+//                   disabled={loading || !anonymousId}
+//                 >
+//                   {loading ? "Processing..." : "Access Data"}
+//                 </button>
+//               </div>
+//             </div>
 
-          {/* Research Consents Viewer */}
-          <div className={styles.card}>
-            <h2 className={styles.cardTitle}>
-              <span className={styles.cardIcon}>👁️</span>
-              View Research Consents
-            </h2>
-            <p className={styles.description}>
-              View all research consents for a specific anonymous ID.
-            </p>
-            <div className={styles.formGrid}>
-              <div className={styles.formField}>
-                <label className={styles.label}>Anonymous ID</label>
-                <input
-                  className={styles.input}
-                  value={consentsAnonymousId}
-                  onChange={(e) => setConsentsAnonymousId(e.target.value)}
-                  placeholder="0x..."
-                />
-              </div>
-            </div>
-            <div className={styles.actionButtons}>
-              <button
-                className={`${styles.primaryButton} ${
-                  loading ? styles.loading : ""
-                }`}
-                onClick={loadResearchConsents}
-                disabled={loading || !consentsAnonymousId}
-              >
-                {loading ? "Loading..." : "Load Consents"}
-              </button>
-            </div>
+//             <div className={styles.subSection}>
+//               <h3>Complete Research Profile</h3>
+//               <div className={styles.formGrid}>
+//                 <div className={styles.formField}>
+//                   <label className={styles.label}>Anonymous ID</label>
+//                   <input
+//                     className={styles.input}
+//                     value={profileAnonymousId}
+//                     onChange={(e) => setProfileAnonymousId(e.target.value)}
+//                     placeholder="0x..."
+//                   />
+//                 </div>
+//               </div>
+//               <div className={styles.actionButtons}>
+//                 <button
+//                   className={`${styles.button} ${
+//                     loading ? styles.loading : ""
+//                   }`}
+//                   onClick={completeResearchProfile}
+//                   disabled={loading || !profileAnonymousId}
+//                 >
+//                   {loading ? "Processing..." : "Complete Profile"}
+//                 </button>
+//               </div>
+//             </div>
+//           </div>
+//         )}
 
-            {consentsData.length > 0 && (
-              <div className={styles.consentsGrid}>
-                <h3>Research Consents ({consentsData.length})</h3>
-                {consentsData.map((consent, index) => (
-                  <div key={index} className={styles.consentCard}>
-                    <div className={styles.consentHeader}>
-                      <span
-                        className={`${styles.consentStatus} ${
-                          consent.isActive ? styles.active : styles.inactive
-                        }`}
-                      >
-                        {consent.isActive ? "🟢 Active" : "🔴 Inactive"}
-                      </span>
-                      <span className={styles.consentIndex}>#{index}</span>
-                    </div>
-                    <div className={styles.consentDetails}>
-                      <p>
-                        <strong>Institution:</strong>{" "}
-                        {consent.researchInstitution}
-                      </p>
-                      <p>
-                        <strong>Purpose:</strong> {consent.researchPurpose}
-                      </p>
-                      <p>
-                        <strong>Granted:</strong>{" "}
-                        {new Date(
-                          Number(consent.grantedDate) * 1000
-                        ).toLocaleDateString()}
-                      </p>
-                      {consent.revokedDate > 0 && (
-                        <p>
-                          <strong>Revoked:</strong>{" "}
-                          {new Date(
-                            Number(consent.revokedDate) * 1000
-                          ).toLocaleDateString()}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+//         // Research Consents Viewer
+//         <div className={styles.card}>
+//           <h2 className={styles.cardTitle}>
+//             <span className={styles.cardIcon}>👁️</span>
+//             View Research Consents
+//           </h2>
+//           <p className={styles.description}>
+//             View all research consents for a specific anonymous ID.
+//           </p>
+//           <div className={styles.formGrid}>
+//             <div className={styles.formField}>
+//               <label className={styles.label}>Anonymous ID</label>
+//               <input
+//                 className={styles.input}
+//                 value={consentsAnonymousId}
+//                 onChange={(e) => setConsentsAnonymousId(e.target.value)}
+//                 placeholder="0x..."
+//               />
+//             </div>
+//           </div>
+//           <div className={styles.actionButtons}>
+//             <button
+//               className={`${styles.primaryButton} ${
+//                 loading ? styles.loading : ""
+//               }`}
+//               onClick={loadResearchConsents}
+//               disabled={loading || !consentsAnonymousId}
+//             >
+//               {loading ? "Loading..." : "Load Consents"}
+//             </button>
+//           </div>
 
-          {/* Restricted Access Notice */}
-          {!isVerifiedResearcher && !isInstitutionVerified && (
-            <div className={styles.card}>
-              <h2 className={styles.cardTitle}>
-                <span className={styles.cardIcon}>🔒</span>
-                Restricted Access
-              </h2>
-              <p className={styles.description}>
-                Some research functions require verified researcher status or
-                verified institution status. Contact the system administrator to
-                request research access permissions.
-              </p>
-              <div
-                style={{
-                  margin: "1rem 0",
-                  padding: "1rem",
-                  background: "rgba(255,255,255,0.1)",
-                  borderRadius: "8px",
-                  fontSize: "0.9rem",
-                }}
-              >
-                <strong>Debug Info:</strong>
-                <br />
-                Connected Address: {address}
-                <br />
-                System Contract: {ENV.BLOOD_DONOR_SYSTEM_ADDRESS}
-                <br />
-                Governance Contract: {ENV.DAO_GOVERNANCE_ADDRESS}
-                <br />
-                Status: {status}
-              </div>
-              <div className={styles.featureGrid}>
-                <div className={styles.featureCard}>
-                  <h3>🔬 Verified Researcher</h3>
-                  <p>Access research data and complete profiles</p>
-                </div>
-                <div className={styles.featureCard}>
-                  <h3>🏛️ Verified Institution</h3>
-                  <p>Institutional access to anonymized data</p>
-                </div>
-              </div>
-              <div className={styles.actionButtons}>
-                <button
-                  className={styles.button}
-                  onClick={checkAccessPermissions}
-                  disabled={checkingAccess}
-                >
-                  {checkingAccess ? "Checking..." : "Retry Access Check"}
-                </button>
-                <button
-                  className={styles.button}
-                  onClick={() => {
-                    setIsVerifiedResearcher(true);
-                    setIsInstitutionVerified(true);
-                    setStatus(
-                      "⚠️ TEMPORARY BYPASS ENABLED - For testing only!"
-                    );
-                  }}
-                  style={{ backgroundColor: "#dc2626" }}
-                >
-                  🚨 Bypass for Testing
-                </button>
-              </div>
-            </div>
-          )}
+//           {consentsData.length > 0 && (
+//             <div className={styles.consentsGrid}>
+//               <h3>Research Consents ({consentsData.length})</h3>
+//               {consentsData.map((consent, index) => (
+//                 <div key={index} className={styles.consentCard}>
+//                   <div className={styles.consentHeader}>
+//                     <span
+//                       className={`${styles.consentStatus} ${
+//                         consent.isActive ? styles.active : styles.inactive
+//                       }`}
+//                     >
+//                       {consent.isActive ? "🟢 Active" : "🔴 Inactive"}
+//                     </span>
+//                     <span className={styles.consentIndex}>#{index}</span>
+//                   </div>
+//                   <div className={styles.consentDetails}>
+//                     <p>
+//                       <strong>Institution:</strong>{" "}
+//                       {consent.researchInstitution}
+//                     </p>
+//                     <p>
+//                       <strong>Purpose:</strong> {consent.researchPurpose}
+//                     </p>
+//                     <p>
+//                       <strong>Granted:</strong>{" "}
+//                       {new Date(
+//                         Number(consent.grantedDate) * 1000
+//                       ).toLocaleDateString()}
+//                     </p>
+//                     {consent.revokedDate > 0 && (
+//                       <p>
+//                         <strong>Revoked:</strong>{" "}
+//                         {new Date(
+//                           Number(consent.revokedDate) * 1000
+//                         ).toLocaleDateString()}
+//                       </p>
+//                     )}
+//                   </div>
+//                 </div>
+//               ))}
+//             </div>
+//           )}
+//         </div>
 
-          {status && (
-            <div
-              className={`${styles.status} ${
-                status.includes("🎉")
-                  ? styles.success
-                  : status.includes("❌") ||
-                    status.includes("Error") ||
-                    status.includes("Failed")
-                  ? styles.error
-                  : ""
-              }`}
-            >
-              {status}
-            </div>
-          )}
-        </div>
-      )}
-    </main>
-  );
-}
+//         // Restricted Access Notice
+//         {!isVerifiedResearcher && !isInstitutionVerified && (
+//           <div className={styles.card}>
+//             <h2 className={styles.cardTitle}>
+//               <span className={styles.cardIcon}>🔒</span>
+//               Restricted Access
+//             </h2>
+//             <p className={styles.description}>
+//               Some research functions require verified researcher status or
+//               verified institution status. Contact the system administrator to
+//               request research access permissions.
+//             </p>
+//             <div
+//               style={{
+//                 margin: "1rem 0",
+//                 padding: "1rem",
+//                 background: "rgba(255,255,255,0.1)",
+//                 borderRadius: "8px",
+//                 fontSize: "0.9rem",
+//               }}
+//             >
+//               <strong>Debug Info:</strong>
+//               <br />
+//               Connected Address: {address}
+//               <br />
+//               System Contract: {ENV.BLOOD_DONOR_SYSTEM_ADDRESS}
+//               <br />
+//               Governance Contract: {ENV.DAO_GOVERNANCE_ADDRESS}
+//               <br />
+//               Status: {status}
+//             </div>
+//             <div className={styles.featureGrid}>
+//               <div className={styles.featureCard}>
+//                 <h3>🔬 Verified Researcher</h3>
+//                 <p>Access research data and complete profiles</p>
+//               </div>
+//               <div className={styles.featureCard}>
+//                 <h3>🏛️ Verified Institution</h3>
+//                 <p>Institutional access to anonymized data</p>
+//               </div>
+//             </div>
+//             <div className={styles.actionButtons}>
+//               <button
+//                 className={styles.button}
+//                 onClick={checkAccessPermissions}
+//                 disabled={checkingAccess}
+//               >
+//                 {checkingAccess ? "Checking..." : "Retry Access Check"}
+//               </button>
+//               <button
+//                 className={styles.button}
+//                 onClick={() => {
+//                   setIsVerifiedResearcher(true);
+//                   setIsInstitutionVerified(true);
+//                   setStatus(
+//                     "⚠️ TEMPORARY BYPASS ENABLED - For testing only!"
+//                   );
+//                 }}
+//                 style={{ backgroundColor: "#dc2626" }}
+//               >
+//                 🚨 Bypass for Testing
+//               </button>
+//             </div>
+//           </div>
+//         )}
+
+//         {status && (
+//           <div
+//             className={`${styles.status} ${
+//               status.includes("🎉")
+//                 ? styles.success
+//                 : status.includes("❌") ||
+//                   status.includes("Error") ||
+//                   status.includes("Failed")
+//                 ? styles.error
+//                 : ""
+//             }`}
+//           >
+//             {status}
+//           </div>
+//         )}
+//       </div>
+//     )}
+//   </main>
+// );
+// }
+*/
