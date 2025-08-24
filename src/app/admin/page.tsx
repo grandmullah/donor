@@ -458,7 +458,7 @@ export default function AdminPage() {
   };
 
   const setTierThreshold = async () => {
-    if (!ENV.BLOOD_DONOR_SYSTEM_ADDRESS) {
+    if (!CONTRACT_ADDRESSES.BLOOD_DONOR_SYSTEM) {
       setStatus("Blood donor system not configured");
       return;
     }
@@ -469,7 +469,7 @@ export default function AdminPage() {
       const provider = await getBrowserProvider();
       const signer = await provider.getSigner();
       const sys = getContract(
-        ENV.BLOOD_DONOR_SYSTEM_ADDRESS,
+        CONTRACT_ADDRESSES.BLOOD_DONOR_SYSTEM,
         BloodDonorSystemABI,
         signer
       );
@@ -485,7 +485,7 @@ export default function AdminPage() {
   };
 
   const updateTierMultiplier = async () => {
-    if (!ENV.DAO_GOVERNANCE_ADDRESS) {
+    if (!CONTRACT_ADDRESSES.DAO_GOVERNANCE) {
       setStatus("Governance contract not configured");
       return;
     }
@@ -496,7 +496,7 @@ export default function AdminPage() {
       const provider = await getBrowserProvider();
       const signer = await provider.getSigner();
       const gov = getContract(
-        ENV.DAO_GOVERNANCE_ADDRESS,
+        CONTRACT_ADDRESSES.DAO_GOVERNANCE,
         DonorDAOGovernanceABI,
         signer
       );
@@ -517,7 +517,7 @@ export default function AdminPage() {
   };
 
   const updateBloodTypeMultiplier = async () => {
-    if (!ENV.DAO_GOVERNANCE_ADDRESS) {
+    if (!CONTRACT_ADDRESSES.DAO_GOVERNANCE) {
       setStatus("Governance contract not configured");
       return;
     }
@@ -528,7 +528,7 @@ export default function AdminPage() {
       const provider = await getBrowserProvider();
       const signer = await provider.getSigner();
       const gov = getContract(
-        ENV.DAO_GOVERNANCE_ADDRESS,
+        CONTRACT_ADDRESSES.DAO_GOVERNANCE,
         DonorDAOGovernanceABI,
         signer
       );
@@ -551,7 +551,7 @@ export default function AdminPage() {
   };
 
   const updateIncentiveParameters = async () => {
-    if (!ENV.DAO_GOVERNANCE_ADDRESS) {
+    if (!CONTRACT_ADDRESSES.DAO_GOVERNANCE) {
       setStatus("Governance contract not configured");
       return;
     }
@@ -562,7 +562,7 @@ export default function AdminPage() {
       const provider = await getBrowserProvider();
       const signer = await provider.getSigner();
       const gov = getContract(
-        ENV.DAO_GOVERNANCE_ADDRESS,
+        CONTRACT_ADDRESSES.DAO_GOVERNANCE,
         DonorDAOGovernanceABI,
         signer
       );
@@ -638,13 +638,13 @@ export default function AdminPage() {
         roleInfo.contract === "BloodDonorSystem" ||
         roleInfo.contract === "both"
       ) {
-        if (!ENV.BLOOD_DONOR_SYSTEM_ADDRESS) {
+        if (!CONTRACT_ADDRESSES.BLOOD_DONOR_SYSTEM) {
           setStatus("BloodDonorSystem contract not configured");
           return;
         }
 
         const sys = getContract(
-          ENV.BLOOD_DONOR_SYSTEM_ADDRESS,
+          CONTRACT_ADDRESSES.BLOOD_DONOR_SYSTEM,
           BloodDonorSystemABI,
           signer
         );
@@ -659,13 +659,13 @@ export default function AdminPage() {
         setStatus(`Granting ${selectedRole} on BloodDonorSystem...`);
         tx = await sys.grantRole(roleHash, roleAddress);
       } else if (roleInfo.contract === "DonorDAOGovernance") {
-        if (!ENV.DAO_GOVERNANCE_ADDRESS) {
+        if (!CONTRACT_ADDRESSES.DAO_GOVERNANCE) {
           setStatus("DonorDAOGovernance contract not configured");
           return;
         }
 
         const gov = getContract(
-          ENV.DAO_GOVERNANCE_ADDRESS,
+          CONTRACT_ADDRESSES.DAO_GOVERNANCE,
           DonorDAOGovernanceABI,
           signer
         );
@@ -774,13 +774,13 @@ export default function AdminPage() {
         roleInfo.contract === "BloodDonorSystem" ||
         roleInfo.contract === "both"
       ) {
-        if (!ENV.BLOOD_DONOR_SYSTEM_ADDRESS) {
+        if (!CONTRACT_ADDRESSES.BLOOD_DONOR_SYSTEM) {
           setStatus("BloodDonorSystem contract not configured");
           return;
         }
 
         const sys = getContract(
-          ENV.BLOOD_DONOR_SYSTEM_ADDRESS,
+          CONTRACT_ADDRESSES.BLOOD_DONOR_SYSTEM,
           BloodDonorSystemABI,
           signer
         );
@@ -795,13 +795,13 @@ export default function AdminPage() {
         setStatus(`Revoking ${selectedRole} on BloodDonorSystem...`);
         tx = await sys.revokeRole(roleHash, roleAddress);
       } else if (roleInfo.contract === "DonorDAOGovernance") {
-        if (!ENV.DAO_GOVERNANCE_ADDRESS) {
+        if (!CONTRACT_ADDRESSES.DAO_GOVERNANCE) {
           setStatus("DonorDAOGovernance contract not configured");
           return;
         }
 
         const gov = getContract(
-          ENV.DAO_GOVERNANCE_ADDRESS,
+          CONTRACT_ADDRESSES.DAO_GOVERNANCE,
           DonorDAOGovernanceABI,
           signer
         );
@@ -905,9 +905,9 @@ export default function AdminPage() {
               <br />
               Connected Address: {address}
               <br />
-              DAO Contract: {ENV.DAO_GOVERNANCE_ADDRESS}
+              DAO Contract: {CONTRACT_ADDRESSES.DAO_GOVERNANCE}
               <br />
-              System Contract: {ENV.BLOOD_DONOR_SYSTEM_ADDRESS}
+              System Contract: {CONTRACT_ADDRESSES.BLOOD_DONOR_SYSTEM}
               <br />
               Status: {status}
             </div>
