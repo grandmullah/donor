@@ -59,7 +59,7 @@ type RewardItem = {
   description: string;
   cost: number; // Cost in BDT tokens
   icon: string;
-  category: 'medical' | 'merchandise' | 'services';
+  category: "medical" | "merchandise" | "services";
 };
 
 type DonorSummary = {
@@ -133,45 +133,45 @@ export default function DonorPage() {
   // Reward items available for redemption
   const rewardItems: RewardItem[] = [
     {
-      id: 'medical-subsidy',
-      name: 'Medical Care Subsidy',
-      description: 'Partial coverage for medical treatments and procedures',
+      id: "medical-subsidy",
+      name: "Medical Care Subsidy",
+      description: "Partial coverage for medical treatments and procedures",
       cost: 500,
-      icon: '🏥',
-      category: 'medical'
+      icon: "🏥",
+      category: "medical",
     },
     {
-      id: 'free-checkup',
-      name: 'Free Medical Check-up',
-      description: 'Comprehensive health screening and consultation',
+      id: "free-checkup",
+      name: "Free Medical Check-up",
+      description: "Comprehensive health screening and consultation",
       cost: 300,
-      icon: '🩺',
-      category: 'medical'
+      icon: "🩺",
+      category: "medical",
     },
     {
-      id: 'preferential-care',
-      name: 'Preferential Care Access',
-      description: 'Priority scheduling and expedited medical services',
+      id: "preferential-care",
+      name: "Preferential Care Access",
+      description: "Priority scheduling and expedited medical services",
       cost: 200,
-      icon: '⭐',
-      category: 'services'
+      icon: "⭐",
+      category: "services",
     },
     {
-      id: 'medicine-discount',
-      name: 'Medicine Discount Voucher',
-      description: '20% discount on prescription medications',
+      id: "medicine-discount",
+      name: "Medicine Discount Voucher",
+      description: "20% discount on prescription medications",
       cost: 150,
-      icon: '💊',
-      category: 'medical'
+      icon: "💊",
+      category: "medical",
     },
     {
-      id: 'donor-tshirt',
-      name: 'Donor T-Shirt',
-      description: 'Premium quality donor appreciation t-shirt',
+      id: "donor-tshirt",
+      name: "Donor T-Shirt",
+      description: "Premium quality donor appreciation t-shirt",
       cost: 100,
-      icon: '👕',
-      category: 'merchandise'
-    }
+      icon: "👕",
+      category: "merchandise",
+    },
   ];
 
   // Reusable function to fetch donor summary data
@@ -782,10 +782,12 @@ export default function DonorPage() {
   // Handle reward redemption
   const handleRedeemReward = async (reward: RewardItem) => {
     if (!summary) return;
-    
+
     const availableTokens = parseInt(summary.availableRewards);
     if (availableTokens < reward.cost) {
-      toast.error(`Insufficient tokens. You need ${reward.cost} BDT tokens but have ${availableTokens}.`);
+      toast.error(
+        `Insufficient tokens. You need ${reward.cost} BDT tokens but have ${availableTokens}.`
+      );
       return;
     }
 
@@ -818,17 +820,19 @@ export default function DonorPage() {
 
       await tx.wait();
 
-      toast.success(`${selectedReward.name} redeemed successfully! 🎉`, { id: toastId });
-      
+      toast.success(`${selectedReward.name} redeemed successfully! 🎉`, {
+        id: toastId,
+      });
+
       // Refresh the summary to update available rewards
       await fetchSummary();
-      
+
       // Close modal and reset selection
       setShowRedemptionModal(false);
       setSelectedReward(null);
-
     } catch (e: unknown) {
-      const message = e instanceof Error ? e.message : "Failed to redeem reward";
+      const message =
+        e instanceof Error ? e.message : "Failed to redeem reward";
       toast.error(message, { id: toastId });
     } finally {
       setLoading(false);
@@ -1100,9 +1104,10 @@ export default function DonorPage() {
                 Redeem Rewards
               </h2>
               <p className={styles.description}>
-                Use your earned BDT tokens to redeem valuable rewards including medical care, merchandise, and exclusive services.
+                Use your earned BDT tokens to redeem valuable rewards including
+                medical care, merchandise, and exclusive services.
               </p>
-              
+
               <div className={styles.rewardsBalance}>
                 <div className={styles.balanceCard}>
                   <span className={styles.balanceLabel}>Available Tokens</span>
@@ -1114,16 +1119,21 @@ export default function DonorPage() {
 
               <div className={styles.rewardsGrid}>
                 {rewardItems.map((reward) => {
-                  const canAfford = parseInt(summary?.availableRewards || "0") >= reward.cost;
+                  const canAfford =
+                    parseInt(summary?.availableRewards || "0") >= reward.cost;
                   return (
                     <div key={reward.id} className={styles.rewardCard}>
                       <div className={styles.rewardIcon}>{reward.icon}</div>
                       <div className={styles.rewardInfo}>
                         <h3 className={styles.rewardName}>{reward.name}</h3>
-                        <p className={styles.rewardDescription}>{reward.description}</p>
+                        <p className={styles.rewardDescription}>
+                          {reward.description}
+                        </p>
                         <div className={styles.rewardCost}>
                           <span className={styles.costLabel}>Cost:</span>
-                          <span className={styles.costValue}>{reward.cost} BDT</span>
+                          <span className={styles.costValue}>
+                            {reward.cost} BDT
+                          </span>
                         </div>
                       </div>
                       <button
@@ -1947,24 +1957,40 @@ export default function DonorPage() {
 
             <div className={styles.popupBody}>
               <div className={styles.rewardPreview}>
-                <div className={styles.rewardPreviewIcon}>{selectedReward.icon}</div>
+                <div className={styles.rewardPreviewIcon}>
+                  {selectedReward.icon}
+                </div>
                 <div className={styles.rewardPreviewInfo}>
-                  <h3 className={styles.rewardPreviewName}>{selectedReward.name}</h3>
-                  <p className={styles.rewardPreviewDescription}>{selectedReward.description}</p>
+                  <h3 className={styles.rewardPreviewName}>
+                    {selectedReward.name}
+                  </h3>
+                  <p className={styles.rewardPreviewDescription}>
+                    {selectedReward.description}
+                  </p>
                   <div className={styles.rewardPreviewCost}>
                     <span className={styles.costLabel}>Cost:</span>
-                    <span className={styles.costValue}>{selectedReward.cost} BDT</span>
+                    <span className={styles.costValue}>
+                      {selectedReward.cost} BDT
+                    </span>
                   </div>
                 </div>
               </div>
 
               <div className={styles.confirmationDetails}>
                 <p className={styles.confirmationText}>
-                  Are you sure you want to redeem this reward? The tokens will be transferred to the admin wallet and cannot be reversed.
+                  Are you sure you want to redeem this reward? The tokens will
+                  be transferred to the admin wallet and cannot be reversed.
                 </p>
                 <div className={styles.balanceInfo}>
-                  <span>Current Balance: {summary?.availableRewards || "0"} BDT</span>
-                  <span>After Redemption: {parseInt(summary?.availableRewards || "0") - selectedReward.cost} BDT</span>
+                  <span>
+                    Current Balance: {summary?.availableRewards || "0"} BDT
+                  </span>
+                  <span>
+                    After Redemption:{" "}
+                    {parseInt(summary?.availableRewards || "0") -
+                      selectedReward.cost}{" "}
+                    BDT
+                  </span>
                 </div>
               </div>
             </div>
@@ -1981,7 +2007,9 @@ export default function DonorPage() {
                 Cancel
               </button>
               <button
-                className={`${styles.submitButton} ${loading ? styles.loading : ""}`}
+                className={`${styles.submitButton} ${
+                  loading ? styles.loading : ""
+                }`}
                 onClick={confirmRedemption}
                 disabled={loading}
               >
