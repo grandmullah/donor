@@ -57,6 +57,24 @@ export default function AdminPage() {
     postDonationFeedbackBonus: "0",
   });
 
+  // Donor List
+  type DonorInfo = {
+    anonymousId: string;
+    bloodType: string;
+    donationCount: number;
+    donorTier: number;
+    consistencyScore: number;
+    isRegistered: boolean;
+    totalRewardsEarned: string;
+    rewardsRedeemed: string;
+    firstDonationDate: number;
+    lastDonationDate: number;
+  };
+
+  const [donors, setDonors] = useState<DonorInfo[]>([]);
+  const [loadingDonors, setLoadingDonors] = useState(false);
+  const [donorCount, setDonorCount] = useState(0);
+
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -72,6 +90,13 @@ export default function AdminPage() {
       setCheckingAdmin(false);
     }
   }, [address]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Load donors when admin access is confirmed
+  useEffect(() => {
+    if (isAdmin && !checkingAdmin) {
+      loadDonors();
+    }
+  }, [isAdmin, checkingAdmin]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const checkAdminStatus = async () => {
     if (!address) {
@@ -290,6 +315,80 @@ export default function AdminPage() {
       });
     } catch (error) {
       console.error("Failed to load system info:", error);
+    }
+  };
+
+  const loadDonors = async () => {
+    if (!ENV.BLOOD_DONOR_SYSTEM_ADDRESS) return;
+
+    setLoadingDonors(true);
+    try {
+      const provider = await getBrowserProvider();
+      const sys = getContract(
+        ENV.BLOOD_DONOR_SYSTEM_ADDRESS,
+        BloodDonorSystemABI,
+        provider
+      );
+
+      // Get DonorRegistered events from the beginning of the contract
+      const filter = sys.filters.DonorRegistered();
+      const events = await sys.queryFilter(filter, 0, "latest");
+
+      console.log(`Found ${events.length} donor registration events`);
+      setDonorCount(events.length);
+
+      // Extract unique anonymous IDs from events
+      const uniqueAnonymousIds = new Set<string>();
+      events.forEach((event) => {
+        // Type guard to check if it's an EventLog with args
+        if ("args" in event && event.args && event.args.anonymousId) {
+          uniqueAnonymousIds.add(event.args.anonymousId);
+        }
+      });
+
+      // Fetch detailed information for each donor
+      const donorInfoPromises = Array.from(uniqueAnonymousIds).map(
+        async (anonymousId) => {
+          try {
+            const donorData = await sys.donors(anonymousId);
+            return {
+              anonymousId,
+              bloodType: donorData.bloodType,
+              donationCount: Number(donorData.donationCount),
+              donorTier: Number(donorData.donorTier),
+              consistencyScore: Number(donorData.consistencyScore),
+              isRegistered: donorData.isRegistered,
+              totalRewardsEarned: donorData.totalRewardsEarned.toString(),
+              rewardsRedeemed: donorData.rewardsRedeemed.toString(),
+              firstDonationDate: Number(donorData.firstDonationDate),
+              lastDonationDate: Number(donorData.lastDonationDate),
+            };
+          } catch (error) {
+            console.error(`Failed to load donor ${anonymousId}:`, error);
+            return null;
+          }
+        }
+      );
+
+      const donorInfoResults = await Promise.all(donorInfoPromises);
+      const validDonors = donorInfoResults.filter(
+        (donor): donor is DonorInfo => donor !== null
+      );
+
+      // Sort by donation count (highest first)
+      validDonors.sort((a, b) => b.donationCount - a.donationCount);
+
+      setDonors(validDonors);
+      console.log(`Loaded ${validDonors.length} donors`);
+    } catch (error) {
+      console.error("Failed to load donors:", error);
+      setStatus(
+        `Failed to load donors: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
+    } finally {
+      setLoadingDonors(false);
     }
   };
 
@@ -895,6 +994,165 @@ export default function AdminPage() {
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* Donor Management */}
+          <div className={styles.card}>
+            <h2 className={styles.cardTitle}>
+              <span className={styles.cardIcon}>👥</span>
+              Registered Donors
+            </h2>
+            <p className={styles.description}>
+              View and manage all registered donors in the system. Monitor
+              donation activity, reward earnings, and tier progression.
+            </p>
+
+            {/* Donor Statistics */}
+            <div className={styles.statsGrid} style={{ marginBottom: "2rem" }}>
+              <div className={styles.statCard}>
+                <div className={styles.statIcon}>📊</div>
+                <div className={styles.statInfo}>
+                  <span className={styles.statValue}>{donorCount}</span>
+                  <span className={styles.statLabel}>Total Registrations</span>
+                </div>
+              </div>
+              <div className={styles.statCard}>
+                <div className={styles.statIcon}>✅</div>
+                <div className={styles.statInfo}>
+                  <span className={styles.statValue}>
+                    {donors.filter((d) => d.isRegistered).length}
+                  </span>
+                  <span className={styles.statLabel}>Active Donors</span>
+                </div>
+              </div>
+              <div className={styles.statCard}>
+                <div className={styles.statIcon}>🩸</div>
+                <div className={styles.statInfo}>
+                  <span className={styles.statValue}>
+                    {donors.reduce((sum, d) => sum + d.donationCount, 0)}
+                  </span>
+                  <span className={styles.statLabel}>Total Donations</span>
+                </div>
+              </div>
+              <div className={styles.statCard}>
+                <div className={styles.statIcon}>🏆</div>
+                <div className={styles.statInfo}>
+                  <span className={styles.statValue}>
+                    {donors.filter((d) => d.donorTier >= 3).length}
+                  </span>
+                  <span className={styles.statLabel}>Gold+ Tier Donors</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Refresh Button */}
+            <div
+              className={styles.actionButtons}
+              style={{ marginBottom: "1rem" }}
+            >
+              <button
+                className={`${styles.primaryButton} ${
+                  loadingDonors ? styles.loading : ""
+                }`}
+                onClick={loadDonors}
+                disabled={loadingDonors}
+              >
+                {loadingDonors ? "Loading Donors..." : "Refresh Donor List"}
+              </button>
+            </div>
+
+            {/* Donors Table */}
+            {loadingDonors ? (
+              <div className={styles.loadingMessage}>
+                <p>Loading donor information...</p>
+              </div>
+            ) : donors.length > 0 ? (
+              <div className={styles.tableWrapper}>
+                <table className={styles.donorTable}>
+                  <thead>
+                    <tr>
+                      <th>Anonymous ID</th>
+                      <th>Blood Type</th>
+                      <th>Donations</th>
+                      <th>Tier</th>
+                      <th>Consistency</th>
+                      <th>Rewards Earned</th>
+                      <th>Rewards Redeemed</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {donors.map((donor) => (
+                      <tr key={donor.anonymousId}>
+                        <td className={styles.anonymousId}>
+                          {donor.anonymousId.slice(0, 8)}...
+                          {donor.anonymousId.slice(-6)}
+                        </td>
+                        <td>
+                          <span
+                            className={`${styles.bloodType} ${
+                              styles[
+                                `bloodType${donor.bloodType.replace(
+                                  /[+-]/g,
+                                  ""
+                                )}`
+                              ]
+                            }`}
+                          >
+                            {donor.bloodType}
+                          </span>
+                        </td>
+                        <td className={styles.donationCount}>
+                          {donor.donationCount}
+                        </td>
+                        <td>
+                          <span
+                            className={`${styles.tier} ${
+                              styles[`tier${donor.donorTier}`]
+                            }`}
+                          >
+                            {donor.donorTier === 0
+                              ? "None"
+                              : donor.donorTier === 1
+                              ? "Bronze"
+                              : donor.donorTier === 2
+                              ? "Silver"
+                              : donor.donorTier === 3
+                              ? "Gold"
+                              : "Platinum"}
+                          </span>
+                        </td>
+                        <td className={styles.consistency}>
+                          {donor.consistencyScore}%
+                        </td>
+                        <td className={styles.rewards}>
+                          {parseFloat(donor.totalRewardsEarned) / 1e18} BDT
+                        </td>
+                        <td className={styles.redeemed}>
+                          {parseFloat(donor.rewardsRedeemed) / 1e18} BDT
+                        </td>
+                        <td>
+                          <span
+                            className={`${styles.status} ${
+                              donor.isRegistered
+                                ? styles.active
+                                : styles.inactive
+                            }`}
+                          >
+                            {donor.isRegistered ? "Active" : "Inactive"}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className={styles.emptyMessage}>
+                <p>No registered donors found.</p>
+                <p>Donors will appear here once they register in the system.</p>
+              </div>
+            )}
           </div>
 
           {/* Research Institution Management */}

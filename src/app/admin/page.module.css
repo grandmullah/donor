@@ -411,4 +411,132 @@
     height: 50px;
     font-size: 1.5rem;
   }
+  
+  .donorTable {
+    font-size: 0.8rem;
+  }
+
+  .donorTable th,
+  .donorTable td {
+    padding: 0.5rem 0.25rem;
+  }
+
+  .anonymousId {
+    font-size: 0.75rem;
+  }
+}
+
+/* Donor Table Styles */
+.tableWrapper {
+  overflow-x: auto;
+  margin: 1rem 0;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.donorTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.donorTable th {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  padding: 1rem 0.75rem;
+  text-align: left;
+  font-weight: 600;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+  white-space: nowrap;
+}
+
+.donorTable td {
+  padding: 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  vertical-align: middle;
+}
+
+.donorTable tr:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.anonymousId {
+  font-family: 'Courier New', monospace;
+  font-size: 0.85rem;
+  color: #a0a0a0;
+}
+
+.bloodType {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.bloodTypeO { background: #dc2626; color: white; }
+.bloodTypeA { background: #2563eb; color: white; }
+.bloodTypeB { background: #16a34a; color: white; }
+.bloodTypeAB { background: #7c3aed; color: white; }
+
+.donationCount {
+  font-weight: 600;
+  color: #10b981;
+}
+
+.tier {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.tier0 { background: #6b7280; color: white; }
+.tier1 { background: #cd7f32; color: white; }
+.tier2 { background: #c0c0c0; color: black; }
+.tier3 { background: #ffd700; color: black; }
+.tier4 { background: #e5e7eb; color: black; }
+
+.consistency {
+  color: #f59e0b;
+  font-weight: 600;
+}
+
+.rewards, .redeemed {
+  font-family: 'Courier New', monospace;
+  color: #10b981;
+  font-weight: 500;
+}
+
+.status {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.status.active {
+  background: #10b981;
+  color: white;
+}
+
+.status.inactive {
+  background: #6b7280;
+  color: white;
+}
+
+.loadingMessage, .emptyMessage {
+  text-align: center;
+  padding: 2rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.emptyMessage p:first-child {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
 }

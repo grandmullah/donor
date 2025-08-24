@@ -18,6 +18,7 @@ type WalletState = {
   wallet: Wallet;
   connecting: boolean;
   address: string | null;
+  isInitializing: boolean;
   connect: () => Promise<void>;
   disconnect: () => Promise<void>;
   switchToAddress: (newAddress: string) => void;
@@ -28,10 +29,55 @@ const WalletContext = createContext<WalletState | null>(null);
 export function WalletProvider({ children }: { children: ReactNode }) {
   const [{ wallet, connecting }, connect, disconnect] = useConnectWallet();
   const [address, setAddress] = useState<string | null>(null);
+  const [hasInitialized, setHasInitialized] = useState(false);
 
+  // Initialize wallet state from localStorage on mount
+  useEffect(() => {
+    const initializeWallet = async () => {
+      try {
+        // Check if we're in browser environment
+        if (typeof window === 'undefined') {
+          setHasInitialized(true);
+          return;
+        }
+
+        // Check if there's a previously connected wallet in localStorage
+        const savedWalletLabel = localStorage.getItem('connectedWallet');
+        if (savedWalletLabel && !wallet && !connecting) {
+          console.log('Attempting to reconnect to:', savedWalletLabel);
+          await connect();
+        }
+      } catch (error) {
+        console.error('Failed to reconnect wallet:', error);
+        // Clear invalid saved state
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('connectedWallet');
+        }
+      } finally {
+        setHasInitialized(true);
+      }
+    };
+
+    if (!hasInitialized) {
+      initializeWallet();
+    }
+  }, [connect, wallet, connecting, hasInitialized]);
+
+  // Update address and save wallet state
   useEffect(() => {
     const addr = wallet?.accounts?.[0]?.address || null;
     setAddress(addr);
+    
+    // Save wallet connection state to localStorage (browser only)
+    if (typeof window !== 'undefined') {
+      if (wallet?.label) {
+        localStorage.setItem('connectedWallet', wallet.label);
+        localStorage.setItem('connectedAddress', addr || '');
+      } else {
+        localStorage.removeItem('connectedWallet');
+        localStorage.removeItem('connectedAddress');
+      }
+    }
   }, [wallet]);
 
   const handleConnect = async () => {
@@ -47,6 +93,11 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       if (wallet) {
         await disconnect(wallet);
       }
+      // Clear localStorage on disconnect (browser only)
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('connectedWallet');
+        localStorage.removeItem('connectedAddress');
+      }
     } catch (error) {
       console.error("Failed to disconnect wallet:", error);
     }
@@ -61,6 +112,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     wallet,
     connecting,
     address,
+    isInitializing: !hasInitialized,
     connect: handleConnect,
     disconnect: handleDisconnect,
     switchToAddress,

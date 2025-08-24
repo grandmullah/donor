@@ -38,6 +38,23 @@ const web3Onboard = Onboard({
       wallets,
       chains,
       appMetadata,
+      // Enable wallet state persistence
+      connect: {
+            autoConnectLastWallet: true,
+      },
+      // Account center configuration
+      accountCenter: {
+            desktop: {
+                  position: 'topRight',
+                  enabled: true,
+                  minimal: true
+            },
+            mobile: {
+                  position: 'topRight',
+                  enabled: true,
+                  minimal: true
+            }
+      }
 });
 
 export default web3Onboard;

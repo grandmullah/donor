@@ -4,7 +4,7 @@ import { useWallet } from "@/contexts/WalletContext";
 import styles from "./ConnectWalletButton.module.css";
 
 export default function ConnectWalletButton() {
-  const { wallet, connecting, connect, disconnect } = useWallet();
+  const { wallet, connecting, isInitializing, connect, disconnect } = useWallet();
 
   const handleClick = async () => {
     if (wallet) {
@@ -13,6 +13,15 @@ export default function ConnectWalletButton() {
     }
     await connect();
   };
+
+  // Show loading state while initializing
+  if (isInitializing) {
+    return (
+      <button className={`${styles.button} ${styles.primary}`} disabled>
+        Initializing...
+      </button>
+    );
+  }
 
   return (
     <button

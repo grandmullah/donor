@@ -289,7 +289,16 @@ export default function DonorPage() {
         BloodDonorSystemABI,
         signer
       );
-      const tx = await sys.registerDonor(bloodType, BigInt(salt || "0"));
+
+      // Use enhanced registration with all required fields
+      const tx = await sys.registerDonor(
+        registrationData.name,
+        registrationData.email,
+        registrationData.phoneNumber,
+        registrationData.password,
+        bloodType,
+        BigInt(salt || "0")
+      );
 
       toast.loading("Waiting for confirmation…", { id: toastId });
       await tx.wait();
@@ -747,31 +756,57 @@ export default function DonorPage() {
       return;
     }
 
+    if (!ENV.BLOOD_DONOR_SYSTEM_ADDRESS) {
+      toast.error("Contract address not configured");
+      return;
+    }
+
     setLoading(true);
     const toastId = toast.loading("Logging in...");
 
     try {
-      // Here you would typically authenticate with your backend
-      // For now, we'll simulate the login process
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const signer = await getValidatedSigner();
+      if (!signer) {
+        setLoading(false);
+        toast.dismiss(toastId);
+        return;
+      }
 
-      // Simulate successful login - in a real app, you'd verify credentials
-      // and get user data from your backend
-      toast.success("Login successful! Welcome back! 🎉", { id: toastId });
-      setShowLoginPopup(false);
+      const sys = getContract(
+        ENV.BLOOD_DONOR_SYSTEM_ADDRESS,
+        BloodDonorSystemABI,
+        signer
+      );
 
-      // Reset form
-      setLoginData({
-        email: "",
-        password: "",
-      });
-      setLoginErrors({});
+      // Call the smart contract loginDonor method
+      const [anonymousId, success] = await sys.loginDonor(
+        loginData.email,
+        loginData.password
+      );
 
-      // Refresh the donor summary to get updated data
-      await fetchSummary();
+      if (success) {
+        console.log("Logged in with anonymous ID:", anonymousId);
+        toast.success("Login successful! Welcome back! 🎉", { id: toastId });
+        setShowLoginPopup(false);
+
+        // Reset form
+        setLoginData({
+          email: "",
+          password: "",
+        });
+        setLoginErrors({});
+
+        // Refresh the donor summary to get updated data
+        await fetchSummary();
+      } else {
+        toast.error("Invalid email or password. Please try again.", {
+          id: toastId,
+        });
+      }
     } catch (error) {
       console.error("Login error:", error);
-      toast.error("Login failed. Please check your credentials.", {
+      const message = error instanceof Error ? error.message : "Login failed";
+      toast.error(`Login failed: ${message}`, {
         id: toastId,
       });
     } finally {
