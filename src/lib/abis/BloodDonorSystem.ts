@@ -910,6 +910,26 @@ export const BloodDonorSystemABI = [
             "inputs": [
                   {
                         "internalType": "string",
+                        "name": "name",
+                        "type": "string"
+                  },
+                  {
+                        "internalType": "string",
+                        "name": "email",
+                        "type": "string"
+                  },
+                  {
+                        "internalType": "string",
+                        "name": "phone",
+                        "type": "string"
+                  },
+                  {
+                        "internalType": "string",
+                        "name": "password",
+                        "type": "string"
+                  },
+                  {
+                        "internalType": "string",
                         "name": "bloodType",
                         "type": "string"
                   },
@@ -928,6 +948,35 @@ export const BloodDonorSystemABI = [
                   }
             ],
             "stateMutability": "nonpayable",
+            "type": "function"
+      },
+      {
+            "inputs": [
+                  {
+                        "internalType": "string",
+                        "name": "email",
+                        "type": "string"
+                  },
+                  {
+                        "internalType": "string",
+                        "name": "password",
+                        "type": "string"
+                  }
+            ],
+            "name": "loginDonor",
+            "outputs": [
+                  {
+                        "internalType": "bytes32",
+                        "name": "anonymousId",
+                        "type": "bytes32"
+                  },
+                  {
+                        "internalType": "bool",
+                        "name": "success",
+                        "type": "bool"
+                  }
+            ],
+            "stateMutability": "view",
             "type": "function"
       },
       {
