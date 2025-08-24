@@ -5,7 +5,7 @@ import { useWallet } from "@/contexts/WalletContext";
 import { getBrowserProvider, getContract } from "@/lib/eth";
 import DonorDAOGovernanceABI from "@/lib/abis/DonorDAOGovernance";
 import BloodDonorSystemABI from "@/lib/abis/BloodDonorSystem";
-import { ENV } from "@/lib/env";
+import { CONTRACT_ADDRESSES } from "@/lib/contracts";
 import styles from "./page.module.css";
 
 export default function AdminPage() {
@@ -117,10 +117,13 @@ export default function AdminPage() {
       return;
     }
 
-    if (!ENV.DAO_GOVERNANCE_ADDRESS || !ENV.BLOOD_DONOR_SYSTEM_ADDRESS) {
+    if (
+      !CONTRACT_ADDRESSES.DAO_GOVERNANCE ||
+      !CONTRACT_ADDRESSES.BLOOD_DONOR_SYSTEM
+    ) {
       console.error("Contract addresses not configured");
       setStatus(
-        "Contract addresses not configured. Please check environment variables."
+        "Contract addresses not configured. Please check contracts.ts file."
       );
       setIsAdmin(false);
       setCheckingAdmin(false);
@@ -129,8 +132,11 @@ export default function AdminPage() {
 
     setCheckingAdmin(true);
     console.log("Checking admin status for address:", address);
-    console.log("DAO Governance Address:", ENV.DAO_GOVERNANCE_ADDRESS);
-    console.log("Blood Donor System Address:", ENV.BLOOD_DONOR_SYSTEM_ADDRESS);
+    console.log("DAO Governance Address:", CONTRACT_ADDRESSES.DAO_GOVERNANCE);
+    console.log(
+      "Blood Donor System Address:",
+      CONTRACT_ADDRESSES.BLOOD_DONOR_SYSTEM
+    );
 
     try {
       const provider = await getBrowserProvider();
@@ -147,8 +153,10 @@ export default function AdminPage() {
       }
 
       // Test basic contract connectivity first
-      const govCode = await provider.getCode(ENV.DAO_GOVERNANCE_ADDRESS);
-      const sysCode = await provider.getCode(ENV.BLOOD_DONOR_SYSTEM_ADDRESS);
+      const govCode = await provider.getCode(CONTRACT_ADDRESSES.DAO_GOVERNANCE);
+      const sysCode = await provider.getCode(
+        CONTRACT_ADDRESSES.BLOOD_DONOR_SYSTEM
+      );
 
       console.log("Governance contract code exists:", govCode !== "0x");
       console.log("System contract code exists:", sysCode !== "0x");
@@ -175,7 +183,7 @@ export default function AdminPage() {
       if (govCode !== "0x") {
         try {
           const gov = getContract(
-            ENV.DAO_GOVERNANCE_ADDRESS,
+            CONTRACT_ADDRESSES.DAO_GOVERNANCE,
             DonorDAOGovernanceABI,
             provider
           );
@@ -194,7 +202,7 @@ export default function AdminPage() {
       if (sysCode !== "0x") {
         try {
           const sys = getContract(
-            ENV.BLOOD_DONOR_SYSTEM_ADDRESS,
+            CONTRACT_ADDRESSES.BLOOD_DONOR_SYSTEM,
             BloodDonorSystemABI,
             provider
           );
@@ -296,12 +304,12 @@ export default function AdminPage() {
   };
 
   const loadSystemInfo = async () => {
-    if (!ENV.DAO_GOVERNANCE_ADDRESS) return;
+    if (!CONTRACT_ADDRESSES.DAO_GOVERNANCE) return;
 
     try {
       const provider = await getBrowserProvider();
       const gov = getContract(
-        ENV.DAO_GOVERNANCE_ADDRESS,
+        CONTRACT_ADDRESSES.DAO_GOVERNANCE,
         DonorDAOGovernanceABI,
         provider
       );
@@ -319,13 +327,13 @@ export default function AdminPage() {
   };
 
   const loadDonors = async () => {
-    if (!ENV.BLOOD_DONOR_SYSTEM_ADDRESS) return;
+    if (!CONTRACT_ADDRESSES.BLOOD_DONOR_SYSTEM) return;
 
     setLoadingDonors(true);
     try {
       const provider = await getBrowserProvider();
       const sys = getContract(
-        ENV.BLOOD_DONOR_SYSTEM_ADDRESS,
+        CONTRACT_ADDRESSES.BLOOD_DONOR_SYSTEM,
         BloodDonorSystemABI,
         provider
       );
@@ -393,7 +401,7 @@ export default function AdminPage() {
   };
 
   const addInstitution = async () => {
-    if (!ENV.DAO_GOVERNANCE_ADDRESS) {
+    if (!CONTRACT_ADDRESSES.DAO_GOVERNANCE) {
       setStatus("Governance contract not configured");
       return;
     }
@@ -403,7 +411,7 @@ export default function AdminPage() {
       const signer = await getValidatedSigner();
       if (!signer) return;
       const gov = getContract(
-        ENV.DAO_GOVERNANCE_ADDRESS,
+        CONTRACT_ADDRESSES.DAO_GOVERNANCE,
         DonorDAOGovernanceABI,
         signer
       );
@@ -420,7 +428,7 @@ export default function AdminPage() {
   };
 
   const removeInstitution = async () => {
-    if (!ENV.DAO_GOVERNANCE_ADDRESS) {
+    if (!CONTRACT_ADDRESSES.DAO_GOVERNANCE) {
       setStatus("Governance contract not configured");
       return;
     }
@@ -431,7 +439,7 @@ export default function AdminPage() {
       const provider = await getBrowserProvider();
       const signer = await provider.getSigner();
       const gov = getContract(
-        ENV.DAO_GOVERNANCE_ADDRESS,
+        CONTRACT_ADDRESSES.DAO_GOVERNANCE,
         DonorDAOGovernanceABI,
         signer
       );
