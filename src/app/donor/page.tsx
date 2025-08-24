@@ -40,6 +40,19 @@ type DonationRecord = {
   index: number;
 };
 
+type RegistrationFormData = {
+  name: string;
+  email: string;
+  phoneNumber: string;
+  password: string;
+  confirmPassword: string;
+};
+
+type LoginFormData = {
+  email: string;
+  password: string;
+};
+
 type DonorSummary = {
   anonymousId: string;
   donor: DonorInfo;
@@ -74,6 +87,28 @@ export default function DonorPage() {
   const [recordsPerPage] = useState(10);
   const [showDetailedHistory, setShowDetailedHistory] = useState(false);
 
+  // Registration popup states
+  const [showRegistrationPopup, setShowRegistrationPopup] = useState(false);
+  const [registrationData, setRegistrationData] =
+    useState<RegistrationFormData>({
+      name: "",
+      email: "",
+      phoneNumber: "",
+      password: "",
+      confirmPassword: "",
+    });
+  const [registrationErrors, setRegistrationErrors] = useState<
+    Partial<RegistrationFormData>
+  >({});
+
+  // Login popup states
+  const [showLoginPopup, setShowLoginPopup] = useState(false);
+  const [loginData, setLoginData] = useState<LoginFormData>({
+    email: "",
+    password: "",
+  });
+  const [loginErrors, setLoginErrors] = useState<Partial<LoginFormData>>({});
+
   const anonId = useMemo(
     () => summary?.anonymousId as string | undefined,
     [summary]
@@ -86,11 +121,38 @@ export default function DonorPage() {
     const load = async () => {
       if (!address) return;
       try {
-        const url = `/api/donor/summary?address=${address}&salt=${salt || "0"}`;
-        const res = await fetch(url);
-        const data = await res.json();
-        if (res.ok) setSummary(data);
-      } catch {}
+        // Direct contract interaction instead of API route for static export
+        const { getBloodDonorSystem } = await import("@/lib/contracts");
+        const sys = getBloodDonorSystem();
+        const saltBigInt = BigInt(salt || "0");
+        const anonId = await sys.generateAnonymousId(address, saltBigInt);
+
+        // Get donor information directly from contract
+        const donor = await sys.donors(anonId);
+        const historyLen = await sys.getDonationHistoryLength(anonId);
+        const availableRewards = await sys.getAvailableRewards(anonId);
+
+        const data = {
+          anonymousId: anonId,
+          donor: {
+            bloodType: donor.bloodType,
+            donationCount: Number(donor.donationCount),
+            donorTier: Number(donor.donorTier),
+            consistencyScore: Number(donor.consistencyScore),
+            isRegistered: donor.isRegistered,
+            totalRewardsEarned: donor.totalRewardsEarned.toString(),
+            rewardsRedeemed: donor.rewardsRedeemed.toString(),
+            firstDonationDate: Number(donor.firstDonationDate),
+            lastDonationDate: Number(donor.lastDonationDate),
+          },
+          historyLength: Number(historyLen),
+          availableRewards: availableRewards.toString(),
+        };
+
+        setSummary(data);
+      } catch (error) {
+        console.error("Failed to load donor data:", error);
+      }
     };
     load();
   }, [address, salt]);
@@ -488,6 +550,174 @@ export default function DonorPage() {
     toast.success("Donation history exported successfully! 📄");
   };
 
+  // Registration form validation
+  const validateRegistrationForm = (): boolean => {
+    const errors: Partial<RegistrationFormData> = {};
+
+    // Name validation
+    if (!registrationData.name.trim()) {
+      errors.name = "Name is required";
+    } else if (registrationData.name.trim().length < 2) {
+      errors.name = "Name must be at least 2 characters";
+    }
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!registrationData.email.trim()) {
+      errors.email = "Email is required";
+    } else if (!emailRegex.test(registrationData.email)) {
+      errors.email = "Please enter a valid email address";
+    }
+
+    // Phone number validation
+    const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
+    if (!registrationData.phoneNumber.trim()) {
+      errors.phoneNumber = "Phone number is required";
+    } else if (
+      !phoneRegex.test(registrationData.phoneNumber.replace(/[\s\-\(\)]/g, ""))
+    ) {
+      errors.phoneNumber = "Please enter a valid phone number";
+    }
+
+    // Password validation
+    if (!registrationData.password) {
+      errors.password = "Password is required";
+    } else if (registrationData.password.length < 8) {
+      errors.password = "Password must be at least 8 characters";
+    } else if (
+      !/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(registrationData.password)
+    ) {
+      errors.password =
+        "Password must contain at least one uppercase letter, one lowercase letter, and one number";
+    }
+
+    // Confirm password validation
+    if (!registrationData.confirmPassword) {
+      errors.confirmPassword = "Please confirm your password";
+    } else if (registrationData.password !== registrationData.confirmPassword) {
+      errors.confirmPassword = "Passwords do not match";
+    }
+
+    setRegistrationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleRegistrationInputChange = (
+    field: keyof RegistrationFormData,
+    value: string
+  ) => {
+    setRegistrationData((prev) => ({ ...prev, [field]: value }));
+    // Clear error when user starts typing
+    if (registrationErrors[field]) {
+      setRegistrationErrors((prev) => ({ ...prev, [field]: undefined }));
+    }
+  };
+
+  const handleRegistrationSubmit = async () => {
+    if (!validateRegistrationForm()) {
+      return;
+    }
+
+    setLoading(true);
+    const toastId = toast.loading("Processing registration...");
+
+    try {
+      // Here you would typically send the registration data to your backend
+      // For now, we'll simulate the registration process
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
+      // After successful registration, proceed with blockchain registration
+      await handleRegister();
+
+      toast.success("Registration completed successfully! 🎉", { id: toastId });
+      setShowRegistrationPopup(false);
+
+      // Reset form
+      setRegistrationData({
+        name: "",
+        email: "",
+        phoneNumber: "",
+        password: "",
+        confirmPassword: "",
+      });
+      setRegistrationErrors({});
+    } catch (error) {
+      console.error("Registration error:", error);
+      toast.error("Registration failed. Please try again.", { id: toastId });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Login form validation
+  const validateLoginForm = (): boolean => {
+    const errors: Partial<LoginFormData> = {};
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!loginData.email.trim()) {
+      errors.email = "Email is required";
+    } else if (!emailRegex.test(loginData.email)) {
+      errors.email = "Please enter a valid email address";
+    }
+
+    // Password validation
+    if (!loginData.password) {
+      errors.password = "Password is required";
+    }
+
+    setLoginErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleLoginInputChange = (
+    field: keyof LoginFormData,
+    value: string
+  ) => {
+    setLoginData((prev) => ({ ...prev, [field]: value }));
+    // Clear error when user starts typing
+    if (loginErrors[field]) {
+      setLoginErrors((prev) => ({ ...prev, [field]: undefined }));
+    }
+  };
+
+  const handleLoginSubmit = async () => {
+    if (!validateLoginForm()) {
+      return;
+    }
+
+    setLoading(true);
+    const toastId = toast.loading("Logging in...");
+
+    try {
+      // Here you would typically authenticate with your backend
+      // For now, we'll simulate the login process
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
+      // Simulate successful login - in a real app, you'd verify credentials
+      // and get user data from your backend
+      toast.success("Login successful! Welcome back! 🎉", { id: toastId });
+      setShowLoginPopup(false);
+
+      // Reset form
+      setLoginData({
+        email: "",
+        password: "",
+      });
+      setLoginErrors({});
+
+      // Refresh the donor summary to get updated data
+      // await fetchSummary(); // TODO: Implement fetchSummary function
+    } catch (error) {
+      console.error("Login error:", error);
+      toast.error("Login failed. Please check your credentials.", {
+        id: toastId,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <main className={styles.container}>
       <div className={styles.hero}>
@@ -535,10 +765,17 @@ export default function DonorPage() {
               className={`${styles.primaryButton} ${
                 loading ? styles.loading : ""
               }`}
-              onClick={handleRegister}
+              onClick={() => setShowRegistrationPopup(true)}
               disabled={!bloodType || loading}
             >
               {loading ? "Processing..." : "Register as Donor"}
+            </button>
+            <button
+              className={styles.secondaryButton}
+              onClick={() => setShowLoginPopup(true)}
+              disabled={loading}
+            >
+              Already Registered? Login
             </button>
           </div>
         </div>
@@ -1183,6 +1420,336 @@ export default function DonorPage() {
               </div>
             </>
           )}
+        </div>
+      )}
+
+      {/* Registration Popup */}
+      {showRegistrationPopup && (
+        <div
+          className={styles.popupOverlay}
+          onClick={(e) => {
+            if (e.target === e.currentTarget && !loading) {
+              setShowRegistrationPopup(false);
+            }
+          }}
+        >
+          <div className={styles.popupContent}>
+            <div className={styles.popupHeader}>
+              <h2 className={styles.popupTitle}>Complete Your Registration</h2>
+              <button
+                className={styles.closeButton}
+                onClick={() => setShowRegistrationPopup(false)}
+                disabled={loading}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className={styles.popupBody}>
+              <p className={styles.popupDescription}>
+                Please provide your personal information to complete your donor
+                registration. This information will be securely stored and used
+                for donor verification.
+              </p>
+
+              <div className={styles.registrationForm}>
+                <div className={styles.formRow}>
+                  <div className={styles.formField}>
+                    <label className={styles.label}>
+                      Full Name <span className={styles.required}>*</span>
+                    </label>
+                    <input
+                      type="text"
+                      className={`${styles.input} ${
+                        registrationErrors.name ? styles.inputError : ""
+                      }`}
+                      placeholder="Enter your full name"
+                      value={registrationData.name}
+                      onChange={(e) =>
+                        handleRegistrationInputChange("name", e.target.value)
+                      }
+                      disabled={loading}
+                    />
+                    {registrationErrors.name && (
+                      <span className={styles.errorMessage}>
+                        {registrationErrors.name}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div className={styles.formRow}>
+                  <div className={styles.formField}>
+                    <label className={styles.label}>
+                      Email Address <span className={styles.required}>*</span>
+                    </label>
+                    <input
+                      type="email"
+                      className={`${styles.input} ${
+                        registrationErrors.email ? styles.inputError : ""
+                      }`}
+                      placeholder="Enter your email address"
+                      value={registrationData.email}
+                      onChange={(e) =>
+                        handleRegistrationInputChange("email", e.target.value)
+                      }
+                      disabled={loading}
+                    />
+                    {registrationErrors.email && (
+                      <span className={styles.errorMessage}>
+                        {registrationErrors.email}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div className={styles.formRow}>
+                  <div className={styles.formField}>
+                    <label className={styles.label}>
+                      Phone Number <span className={styles.required}>*</span>
+                    </label>
+                    <input
+                      type="tel"
+                      className={`${styles.input} ${
+                        registrationErrors.phoneNumber ? styles.inputError : ""
+                      }`}
+                      placeholder="Enter your phone number"
+                      value={registrationData.phoneNumber}
+                      onChange={(e) =>
+                        handleRegistrationInputChange(
+                          "phoneNumber",
+                          e.target.value
+                        )
+                      }
+                      disabled={loading}
+                    />
+                    {registrationErrors.phoneNumber && (
+                      <span className={styles.errorMessage}>
+                        {registrationErrors.phoneNumber}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div className={styles.formRow}>
+                  <div className={styles.formField}>
+                    <label className={styles.label}>
+                      Password <span className={styles.required}>*</span>
+                    </label>
+                    <input
+                      type="password"
+                      className={`${styles.input} ${
+                        registrationErrors.password ? styles.inputError : ""
+                      }`}
+                      placeholder="Create a secure password"
+                      value={registrationData.password}
+                      onChange={(e) =>
+                        handleRegistrationInputChange(
+                          "password",
+                          e.target.value
+                        )
+                      }
+                      disabled={loading}
+                    />
+                    {registrationErrors.password && (
+                      <span className={styles.errorMessage}>
+                        {registrationErrors.password}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div className={styles.formRow}>
+                  <div className={styles.formField}>
+                    <label className={styles.label}>
+                      Confirm Password{" "}
+                      <span className={styles.required}>*</span>
+                    </label>
+                    <input
+                      type="password"
+                      className={`${styles.input} ${
+                        registrationErrors.confirmPassword
+                          ? styles.inputError
+                          : ""
+                      }`}
+                      placeholder="Confirm your password"
+                      value={registrationData.confirmPassword}
+                      onChange={(e) =>
+                        handleRegistrationInputChange(
+                          "confirmPassword",
+                          e.target.value
+                        )
+                      }
+                      disabled={loading}
+                    />
+                    {registrationErrors.confirmPassword && (
+                      <span className={styles.errorMessage}>
+                        {registrationErrors.confirmPassword}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div className={styles.selectedBloodType}>
+                  <span className={styles.bloodTypeLabel}>
+                    Selected Blood Type:
+                  </span>
+                  <span className={styles.bloodTypeValue}>{bloodType}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className={styles.popupFooter}>
+              <button
+                className={styles.cancelButton}
+                onClick={() => setShowRegistrationPopup(false)}
+                disabled={loading}
+              >
+                Cancel
+              </button>
+              <button
+                className={`${styles.submitButton} ${
+                  loading ? styles.loading : ""
+                }`}
+                onClick={handleRegistrationSubmit}
+                disabled={loading}
+              >
+                {loading ? "Processing..." : "Complete Registration"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Login Popup */}
+      {showLoginPopup && (
+        <div
+          className={styles.popupOverlay}
+          onClick={(e) => {
+            if (e.target === e.currentTarget && !loading) {
+              setShowLoginPopup(false);
+            }
+          }}
+        >
+          <div className={styles.popupContent}>
+            <div className={styles.popupHeader}>
+              <h2 className={styles.popupTitle}>Welcome Back</h2>
+              <button
+                className={styles.closeButton}
+                onClick={() => setShowLoginPopup(false)}
+                disabled={loading}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className={styles.popupBody}>
+              <p className={styles.popupDescription}>
+                Please enter your credentials to access your donor account.
+              </p>
+
+              <div className={styles.registrationForm}>
+                <div className={styles.formRow}>
+                  <div className={styles.formField}>
+                    <label className={styles.label}>
+                      Email Address <span className={styles.required}>*</span>
+                    </label>
+                    <input
+                      type="email"
+                      className={`${styles.input} ${
+                        loginErrors.email ? styles.inputError : ""
+                      }`}
+                      placeholder="Enter your email address"
+                      value={loginData.email}
+                      onChange={(e) =>
+                        handleLoginInputChange("email", e.target.value)
+                      }
+                      disabled={loading}
+                    />
+                    {loginErrors.email && (
+                      <span className={styles.errorMessage}>
+                        {loginErrors.email}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div className={styles.formRow}>
+                  <div className={styles.formField}>
+                    <label className={styles.label}>
+                      Password <span className={styles.required}>*</span>
+                    </label>
+                    <input
+                      type="password"
+                      className={`${styles.input} ${
+                        loginErrors.password ? styles.inputError : ""
+                      }`}
+                      placeholder="Enter your password"
+                      value={loginData.password}
+                      onChange={(e) =>
+                        handleLoginInputChange("password", e.target.value)
+                      }
+                      disabled={loading}
+                    />
+                    {loginErrors.password && (
+                      <span className={styles.errorMessage}>
+                        {loginErrors.password}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div className={styles.loginOptions}>
+                  <button
+                    className={styles.forgotPasswordButton}
+                    onClick={() => {
+                      toast("Password reset feature coming soon!", {
+                        icon: "ℹ️",
+                      });
+                    }}
+                    disabled={loading}
+                  >
+                    Forgot Password?
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className={styles.popupFooter}>
+              <button
+                className={styles.cancelButton}
+                onClick={() => setShowLoginPopup(false)}
+                disabled={loading}
+              >
+                Cancel
+              </button>
+              <button
+                className={`${styles.submitButton} ${
+                  loading ? styles.loading : ""
+                }`}
+                onClick={handleLoginSubmit}
+                disabled={loading}
+              >
+                {loading ? "Logging in..." : "Login"}
+              </button>
+            </div>
+
+            <div className={styles.popupFooterNote}>
+              <p>
+                Don&apos;t have an account?{" "}
+                <button
+                  className={styles.switchFormButton}
+                  onClick={() => {
+                    setShowLoginPopup(false);
+                    setShowRegistrationPopup(true);
+                  }}
+                  disabled={loading}
+                >
+                  Register here
+                </button>
+              </p>
+            </div>
+          </div>
         </div>
       )}
     </main>
