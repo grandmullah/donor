@@ -864,7 +864,7 @@ export default function DonorPage() {
         <h1 className={styles.title}>Rare Blood Donor Portal</h1>
         <p className={styles.subtitle}>
           Manage your blood donations, track rewards, and contribute to
-          life-saving research
+          life-saving 
         </p>
       </div>
 
