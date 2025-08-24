@@ -117,45 +117,49 @@ export default function DonorPage() {
   const tierNames = ["Unranked", "Bronze", "Silver", "Gold", "Platinum"];
   const tierColors = ["#6b7280", "#cd7f32", "#c0c0c0", "#ffd700", "#e5e4e2"];
 
-  useEffect(() => {
-    const load = async () => {
-      if (!address) return;
-      try {
-        // Direct contract interaction instead of API route for static export
-        const { getBloodDonorSystem } = await import("@/lib/contracts");
-        const sys = getBloodDonorSystem();
-        const saltBigInt = BigInt(salt || "0");
-        const anonId = await sys.generateAnonymousId(address, saltBigInt);
+  // Reusable function to fetch donor summary data
+  const fetchSummary = useCallback(async () => {
+    if (!address) return;
 
-        // Get donor information directly from contract
-        const donor = await sys.donors(anonId);
-        const historyLen = await sys.getDonationHistoryLength(anonId);
-        const availableRewards = await sys.getAvailableRewards(anonId);
+    try {
+      // Direct contract interaction for fetching donor data
+      const { getBloodDonorSystem } = await import("@/lib/contracts");
+      const sys = getBloodDonorSystem();
+      const saltBigInt = BigInt(salt || "0");
+      const anonId = await sys.generateAnonymousId(address, saltBigInt);
 
-        const data = {
-          anonymousId: anonId,
-          donor: {
-            bloodType: donor.bloodType,
-            donationCount: Number(donor.donationCount),
-            donorTier: Number(donor.donorTier),
-            consistencyScore: Number(donor.consistencyScore),
-            isRegistered: donor.isRegistered,
-            totalRewardsEarned: donor.totalRewardsEarned.toString(),
-            rewardsRedeemed: donor.rewardsRedeemed.toString(),
-            firstDonationDate: Number(donor.firstDonationDate),
-            lastDonationDate: Number(donor.lastDonationDate),
-          },
-          historyLength: Number(historyLen),
-          availableRewards: availableRewards.toString(),
-        };
+      // Get donor information directly from contract
+      const donor = await sys.donors(anonId);
+      const historyLen = await sys.getDonationHistoryLength(anonId);
+      const availableRewards = await sys.getAvailableRewards(anonId);
 
-        setSummary(data);
-      } catch (error) {
-        console.error("Failed to load donor data:", error);
-      }
-    };
-    load();
+      const data = {
+        anonymousId: anonId,
+        donor: {
+          bloodType: donor.bloodType,
+          donationCount: Number(donor.donationCount),
+          donorTier: Number(donor.donorTier),
+          consistencyScore: Number(donor.consistencyScore),
+          isRegistered: donor.isRegistered,
+          totalRewardsEarned: donor.totalRewardsEarned.toString(),
+          rewardsRedeemed: donor.rewardsRedeemed.toString(),
+          firstDonationDate: Number(donor.firstDonationDate),
+          lastDonationDate: Number(donor.lastDonationDate),
+        },
+        historyLength: Number(historyLen),
+        availableRewards: availableRewards.toString(),
+      };
+
+      setSummary(data);
+    } catch (error) {
+      console.error("Failed to load donor data:", error);
+      throw error; // Re-throw so calling functions can handle it
+    }
   }, [address, salt]);
+
+  useEffect(() => {
+    fetchSummary();
+  }, [fetchSummary]);
 
   // Helper function to validate wallet connection and get signer
   const getValidatedSigner = async () => {
@@ -707,7 +711,7 @@ export default function DonorPage() {
       setLoginErrors({});
 
       // Refresh the donor summary to get updated data
-      // await fetchSummary(); // TODO: Implement fetchSummary function
+      await fetchSummary();
     } catch (error) {
       console.error("Login error:", error);
       toast.error("Login failed. Please check your credentials.", {
