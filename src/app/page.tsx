@@ -7,10 +7,10 @@ export default function Home() {
       {/* Hero Section */}
       <section className={styles.hero}>
         <div className={styles.heroContent}>
-          <h1 className={styles.heroTitle}>Revolutionizing Blood Donation</h1>
+          <h1 className={styles.heroTitle}>Rare Blood Donation Platform</h1>
           <p className={styles.heroSubtitle}>
-            A blockchain-powered platform that rewards donors and saves lives
-            through transparent, privacy-focused blood donation management.
+            A blockchain-powered incentive system for rare blood type donors
+            (O-, A-, B-, AB-)
           </p>
           <div className={styles.heroButtons}>
             <Link href="/donor" className={styles.ctaPrimary}>
@@ -26,10 +26,10 @@ export default function Home() {
       {/* Features Section */}
       <section className={styles.features}>
         <div className={styles.featuresContainer}>
-          <h2 className={styles.featuresTitle}>Why Choose Betzone?</h2>
+          <h2 className={styles.featuresTitle}>Why Choose to Donate Blood?</h2>
           <p className={styles.featuresSubtitle}>
-            Experience the future of blood donation with our innovative
-            Web3-powered platform
+            {/* Experience the future of blood donation with our innovative
+            Web3-powered platform */}
           </p>
 
           <div className={styles.featuresGrid}>
@@ -95,11 +95,11 @@ export default function Home() {
         <div className={styles.statsContainer}>
           <div className={styles.statsGrid}>
             <div className={styles.statItem}>
-              <div className={styles.statNumber}>10K+</div>
+              <div className={styles.statNumber}>100+</div>
               <div className={styles.statLabel}>Registered Donors</div>
             </div>
             <div className={styles.statItem}>
-              <div className={styles.statNumber}>50K+</div>
+              <div className={styles.statNumber}>50+</div>
               <div className={styles.statLabel}>Donations Recorded</div>
             </div>
             {/* <div className={styles.statItem}>
@@ -107,7 +107,7 @@ export default function Home() {
               <div className={styles.statLabel}>Research Partners</div>
             </div> */}
             <div className={styles.statItem}>
-              <div className={styles.statNumber}>1M+</div>
+              <div className={styles.statNumber}>500+</div>
               <div className={styles.statLabel}>Lives Impacted</div>
             </div>
           </div>

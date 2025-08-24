@@ -30,7 +30,7 @@ const chains = [
 ];
 
 const appMetadata = {
-      name: "Betzone Donor",
+      name: "Blood Donor",
       description: "Wallet connection base using Web3 Onboard",
 };
 

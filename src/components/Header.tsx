@@ -53,7 +53,7 @@ export default function Header() {
       <div className={styles.inner}>
         <div className={styles.row}>
           <Link href="/" className={styles.brand}>
-            Betzone
+            RBD
           </Link>
           <nav className={styles.nav}>
             <Link href="/donor">Donor</Link>

@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState, useCallback } from "react";
 import { useWallet } from "@/contexts/WalletContext";
 import { getBrowserProvider, getContract } from "@/lib/eth";
 import BloodDonorSystemABI from "@/lib/abis/BloodDonorSystem";
-import { ENV } from "@/lib/env";
+import { ENV, assertAddress } from "@/lib/env";
 import toast from "react-hot-toast";
 import styles from "./page.module.css";
 
@@ -53,6 +53,15 @@ type LoginFormData = {
   password: string;
 };
 
+type RewardItem = {
+  id: string;
+  name: string;
+  description: string;
+  cost: number; // Cost in BDT tokens
+  icon: string;
+  category: 'medical' | 'merchandise' | 'services';
+};
+
 type DonorSummary = {
   anonymousId: string;
   donor: DonorInfo;
@@ -63,7 +72,7 @@ type DonorSummary = {
 
 export default function DonorPage() {
   const { address, switchToAddress } = useWallet();
-  const [bloodType, setBloodType] = useState("O+");
+  const [bloodType, setBloodType] = useState("O-");
   const [salt] = useState<string>("0"); // Fixed to default value 0
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
@@ -109,6 +118,10 @@ export default function DonorPage() {
   });
   const [loginErrors, setLoginErrors] = useState<Partial<LoginFormData>>({});
 
+  // Reward redemption states
+  const [selectedReward, setSelectedReward] = useState<RewardItem | null>(null);
+  const [showRedemptionModal, setShowRedemptionModal] = useState(false);
+
   const anonId = useMemo(
     () => summary?.anonymousId as string | undefined,
     [summary]
@@ -116,6 +129,50 @@ export default function DonorPage() {
 
   const tierNames = ["Unranked", "Bronze", "Silver", "Gold", "Platinum"];
   const tierColors = ["#6b7280", "#cd7f32", "#c0c0c0", "#ffd700", "#e5e4e2"];
+
+  // Reward items available for redemption
+  const rewardItems: RewardItem[] = [
+    {
+      id: 'medical-subsidy',
+      name: 'Medical Care Subsidy',
+      description: 'Partial coverage for medical treatments and procedures',
+      cost: 500,
+      icon: '🏥',
+      category: 'medical'
+    },
+    {
+      id: 'free-checkup',
+      name: 'Free Medical Check-up',
+      description: 'Comprehensive health screening and consultation',
+      cost: 300,
+      icon: '🩺',
+      category: 'medical'
+    },
+    {
+      id: 'preferential-care',
+      name: 'Preferential Care Access',
+      description: 'Priority scheduling and expedited medical services',
+      cost: 200,
+      icon: '⭐',
+      category: 'services'
+    },
+    {
+      id: 'medicine-discount',
+      name: 'Medicine Discount Voucher',
+      description: '20% discount on prescription medications',
+      cost: 150,
+      icon: '💊',
+      category: 'medical'
+    },
+    {
+      id: 'donor-tshirt',
+      name: 'Donor T-Shirt',
+      description: 'Premium quality donor appreciation t-shirt',
+      cost: 100,
+      icon: '👕',
+      category: 'merchandise'
+    }
+  ];
 
   // Reusable function to fetch donor summary data
   const fetchSummary = useCallback(async () => {
@@ -722,6 +779,62 @@ export default function DonorPage() {
     }
   };
 
+  // Handle reward redemption
+  const handleRedeemReward = async (reward: RewardItem) => {
+    if (!summary) return;
+    
+    const availableTokens = parseInt(summary.availableRewards);
+    if (availableTokens < reward.cost) {
+      toast.error(`Insufficient tokens. You need ${reward.cost} BDT tokens but have ${availableTokens}.`);
+      return;
+    }
+
+    setSelectedReward(reward);
+    setShowRedemptionModal(true);
+  };
+
+  const confirmRedemption = async () => {
+    if (!selectedReward || !address) return;
+
+    setLoading(true);
+    const toastId = toast.loading(`Redeeming ${selectedReward.name}...`);
+
+    try {
+      const signer = await getValidatedSigner();
+      if (!signer) return;
+
+      const sys = getContract(
+        assertAddress("BLOOD_DONOR_SYSTEM_ADDRESS"),
+        BloodDonorSystemABI,
+        signer
+      );
+
+      // Call the smart contract to redeem rewards
+      // The tokens will be transferred to the admin wallet
+      const tx = await sys.redeemRewards(
+        BigInt(selectedReward.cost),
+        selectedReward.id // Pass reward ID for tracking
+      );
+
+      await tx.wait();
+
+      toast.success(`${selectedReward.name} redeemed successfully! 🎉`, { id: toastId });
+      
+      // Refresh the summary to update available rewards
+      await fetchSummary();
+      
+      // Close modal and reset selection
+      setShowRedemptionModal(false);
+      setSelectedReward(null);
+
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : "Failed to redeem reward";
+      toast.error(message, { id: toastId });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <main className={styles.container}>
       <div className={styles.hero}>
@@ -756,7 +869,7 @@ export default function DonorPage() {
                 value={bloodType}
                 onChange={(e) => setBloodType(e.target.value)}
               >
-                {["O-", "O+", "A-", "A+", "B-", "B+", "AB-", "AB+"].map((t) => (
+                {["O-", "A-", "B-", "AB-"].map((t) => (
                   <option key={t} value={t}>
                     {t}
                   </option>
@@ -789,6 +902,7 @@ export default function DonorPage() {
           <div className={styles.tabNav}>
             {[
               { id: "overview", label: "Overview", icon: "📊" },
+              { id: "rewards", label: "Rewards", icon: "🎁" },
               { id: "feedback", label: "Feedback", icon: "⭐" },
               // { id: "consent", label: "Research Consent", icon: "🔬" }, // RESEARCH TAB COMMENTED OUT
               { id: "history", label: "History", icon: "📈" },
@@ -976,6 +1090,62 @@ export default function DonorPage() {
                 </div>
               </div>
             </>
+          )}
+
+          {/* Rewards Tab */}
+          {activeTab === "rewards" && (
+            <div className={styles.card}>
+              <h2 className={styles.cardTitle}>
+                <span className={styles.cardIcon}>🎁</span>
+                Redeem Rewards
+              </h2>
+              <p className={styles.description}>
+                Use your earned BDT tokens to redeem valuable rewards including medical care, merchandise, and exclusive services.
+              </p>
+              
+              <div className={styles.rewardsBalance}>
+                <div className={styles.balanceCard}>
+                  <span className={styles.balanceLabel}>Available Tokens</span>
+                  <span className={styles.balanceValue}>
+                    {summary?.availableRewards || "0"} BDT
+                  </span>
+                </div>
+              </div>
+
+              <div className={styles.rewardsGrid}>
+                {rewardItems.map((reward) => {
+                  const canAfford = parseInt(summary?.availableRewards || "0") >= reward.cost;
+                  return (
+                    <div key={reward.id} className={styles.rewardCard}>
+                      <div className={styles.rewardIcon}>{reward.icon}</div>
+                      <div className={styles.rewardInfo}>
+                        <h3 className={styles.rewardName}>{reward.name}</h3>
+                        <p className={styles.rewardDescription}>{reward.description}</p>
+                        <div className={styles.rewardCost}>
+                          <span className={styles.costLabel}>Cost:</span>
+                          <span className={styles.costValue}>{reward.cost} BDT</span>
+                        </div>
+                      </div>
+                      <button
+                        className={`${styles.redeemButton} ${
+                          !canAfford ? styles.disabled : ""
+                        } ${loading ? styles.loading : ""}`}
+                        onClick={() => handleRedeemReward(reward)}
+                        disabled={!canAfford || loading}
+                      >
+                        {!canAfford ? "Insufficient Tokens" : "Redeem"}
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {rewardItems.length === 0 && (
+                <div className={styles.emptyState}>
+                  <p>No rewards available at this time. Check back later!</p>
+                </div>
+              )}
+            </div>
           )}
 
           {/* Feedback Tab */}
@@ -1752,6 +1922,71 @@ export default function DonorPage() {
                   Register here
                 </button>
               </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Reward Redemption Confirmation Modal */}
+      {showRedemptionModal && selectedReward && (
+        <div className={styles.popupOverlay}>
+          <div className={styles.popupContent}>
+            <div className={styles.popupHeader}>
+              <h2 className={styles.popupTitle}>Confirm Redemption</h2>
+              <button
+                className={styles.closeButton}
+                onClick={() => {
+                  setShowRedemptionModal(false);
+                  setSelectedReward(null);
+                }}
+                disabled={loading}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className={styles.popupBody}>
+              <div className={styles.rewardPreview}>
+                <div className={styles.rewardPreviewIcon}>{selectedReward.icon}</div>
+                <div className={styles.rewardPreviewInfo}>
+                  <h3 className={styles.rewardPreviewName}>{selectedReward.name}</h3>
+                  <p className={styles.rewardPreviewDescription}>{selectedReward.description}</p>
+                  <div className={styles.rewardPreviewCost}>
+                    <span className={styles.costLabel}>Cost:</span>
+                    <span className={styles.costValue}>{selectedReward.cost} BDT</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className={styles.confirmationDetails}>
+                <p className={styles.confirmationText}>
+                  Are you sure you want to redeem this reward? The tokens will be transferred to the admin wallet and cannot be reversed.
+                </p>
+                <div className={styles.balanceInfo}>
+                  <span>Current Balance: {summary?.availableRewards || "0"} BDT</span>
+                  <span>After Redemption: {parseInt(summary?.availableRewards || "0") - selectedReward.cost} BDT</span>
+                </div>
+              </div>
+            </div>
+
+            <div className={styles.popupFooter}>
+              <button
+                className={styles.cancelButton}
+                onClick={() => {
+                  setShowRedemptionModal(false);
+                  setSelectedReward(null);
+                }}
+                disabled={loading}
+              >
+                Cancel
+              </button>
+              <button
+                className={`${styles.submitButton} ${loading ? styles.loading : ""}`}
+                onClick={confirmRedemption}
+                disabled={loading}
+              >
+                {loading ? "Processing..." : "Confirm Redemption"}
+              </button>
             </div>
           </div>
         </div>

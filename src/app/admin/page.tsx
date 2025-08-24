@@ -22,8 +22,22 @@ export default function AdminPage() {
   const [tierMultiplier, setTierMultiplier] = useState("100");
 
   // Blood Type Management
-  const [bloodType, setBloodType] = useState("A+");
-  const [bloodTypeMultiplier, setBloodTypeMultiplier] = useState("100");
+  const [bloodType, setBloodType] = useState("O-");
+  const [bloodTypeMultiplier, setBloodTypeMultiplier] = useState("230");
+
+  // Blood type multiplier mapping
+  const bloodTypeMultipliers: Record<string, string> = {
+    "O-": "230", // Universal donor - highest multiplier
+    "AB-": "250", // Rarest blood type
+    "B-": "200", // Rare blood type
+    "A-": "150", // Uncommon blood type
+  };
+
+  // Update multiplier when blood type changes
+  const handleBloodTypeChange = (newBloodType: string) => {
+    setBloodType(newBloodType);
+    setBloodTypeMultiplier(bloodTypeMultipliers[newBloodType] || "150");
+  };
 
   // Incentive Parameters
   const [baseReward, setBaseReward] = useState("100");
@@ -1029,16 +1043,12 @@ export default function AdminPage() {
                 <select
                   className={styles.select}
                   value={bloodType}
-                  onChange={(e) => setBloodType(e.target.value)}
+                  onChange={(e) => handleBloodTypeChange(e.target.value)}
                 >
-                  <option value="A+">A+</option>
-                  <option value="A-">A-</option>
-                  <option value="B+">B+</option>
-                  <option value="B-">B-</option>
-                  <option value="AB+">AB+</option>
-                  <option value="AB-">AB-</option>
-                  <option value="O+">O+</option>
-                  <option value="O-">O-</option>
+                  <option value="O-">O- (Universal donor - 230%)</option>
+                  <option value="AB-">AB- (Rarest - 250%)</option>
+                  <option value="B-">B- (Rare - 200%)</option>
+                  <option value="A-">A- (Uncommon - 150%)</option>
                 </select>
               </div>
               <div className={styles.formField}>
