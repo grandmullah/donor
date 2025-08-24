@@ -7,10 +7,10 @@ export default function Home() {
       {/* Hero Section */}
       <section className={styles.hero}>
         <div className={styles.heroContent}>
-          <h1 className={styles.heroTitle}>Rare Blood Donation Platform</h1>
+          <h1 className={styles.heroTitle}>Welcome to Blood Donation</h1>
           <p className={styles.heroSubtitle}>
-            A blockchain-powered incentive system for rare blood type donors
-            (O-, A-, B-, AB-)
+            A blockchain Based Model for Provision of Incentive to Rare Blood
+            Group Donors
           </p>
           <div className={styles.heroButtons}>
             <Link href="/donor" className={styles.ctaPrimary}>
