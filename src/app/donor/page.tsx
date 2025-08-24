@@ -45,7 +45,6 @@ type RegistrationFormData = {
   email: string;
   phoneNumber: string;
   password: string;
-  confirmPassword: string;
 };
 
 type LoginFormData = {
@@ -104,7 +103,6 @@ export default function DonorPage() {
       email: "",
       phoneNumber: "",
       password: "",
-      confirmPassword: "",
     });
   const [registrationErrors, setRegistrationErrors] = useState<
     Partial<RegistrationFormData>
@@ -649,23 +647,9 @@ export default function DonorPage() {
       errors.phoneNumber = "Please enter a valid phone number";
     }
 
-    // Password validation
+    // Password validation - simplified (no requirements)
     if (!registrationData.password) {
       errors.password = "Password is required";
-    } else if (registrationData.password.length < 8) {
-      errors.password = "Password must be at least 8 characters";
-    } else if (
-      !/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(registrationData.password)
-    ) {
-      errors.password =
-        "Password must contain at least one uppercase letter, one lowercase letter, and one number";
-    }
-
-    // Confirm password validation
-    if (!registrationData.confirmPassword) {
-      errors.confirmPassword = "Please confirm your password";
-    } else if (registrationData.password !== registrationData.confirmPassword) {
-      errors.confirmPassword = "Passwords do not match";
     }
 
     setRegistrationErrors(errors);
@@ -708,7 +692,6 @@ export default function DonorPage() {
         email: "",
         phoneNumber: "",
         password: "",
-        confirmPassword: "",
       });
       setRegistrationErrors({});
     } catch (error) {
@@ -1752,15 +1735,13 @@ export default function DonorPage() {
 
                 <div className={styles.formRow}>
                   <div className={styles.formField}>
-                    <label className={styles.label}>
-                      Password <span className={styles.required}>*</span>
-                    </label>
+                    <label className={styles.label}>Password</label>
                     <input
                       type="password"
                       className={`${styles.input} ${
                         registrationErrors.password ? styles.inputError : ""
                       }`}
-                      placeholder="Create a secure password"
+                      placeholder="Enter your password"
                       value={registrationData.password}
                       onChange={(e) =>
                         handleRegistrationInputChange(
@@ -1773,37 +1754,6 @@ export default function DonorPage() {
                     {registrationErrors.password && (
                       <span className={styles.errorMessage}>
                         {registrationErrors.password}
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                <div className={styles.formRow}>
-                  <div className={styles.formField}>
-                    <label className={styles.label}>
-                      Confirm Password{" "}
-                      <span className={styles.required}>*</span>
-                    </label>
-                    <input
-                      type="password"
-                      className={`${styles.input} ${
-                        registrationErrors.confirmPassword
-                          ? styles.inputError
-                          : ""
-                      }`}
-                      placeholder="Confirm your password"
-                      value={registrationData.confirmPassword}
-                      onChange={(e) =>
-                        handleRegistrationInputChange(
-                          "confirmPassword",
-                          e.target.value
-                        )
-                      }
-                      disabled={loading}
-                    />
-                    {registrationErrors.confirmPassword && (
-                      <span className={styles.errorMessage}>
-                        {registrationErrors.confirmPassword}
                       </span>
                     )}
                   </div>
@@ -1895,9 +1845,7 @@ export default function DonorPage() {
 
                 <div className={styles.formRow}>
                   <div className={styles.formField}>
-                    <label className={styles.label}>
-                      Password <span className={styles.required}>*</span>
-                    </label>
+                    <label className={styles.label}>Password</label>
                     <input
                       type="password"
                       className={`${styles.input} ${
