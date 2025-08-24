@@ -9,7 +9,7 @@ export default function Home() {
         <div className={styles.heroContent}>
           <h1 className={styles.heroTitle}>Welcome to Blood Donation</h1>
           <p className={styles.heroSubtitle}>
-            A blockchain Based Model for Provision of Incentive to Rare Blood
+            A Blockchain Based Model for Provision of Incentives to Rare Blood
             Group Donors
           </p>
           <div className={styles.heroButtons}>

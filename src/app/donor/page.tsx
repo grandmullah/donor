@@ -4,9 +4,10 @@ import { useEffect, useMemo, useState, useCallback } from "react";
 import { useWallet } from "@/contexts/WalletContext";
 import { getBrowserProvider, getContract } from "@/lib/eth";
 import BloodDonorSystemABI from "@/lib/abis/BloodDonorSystem";
-import { ENV, assertAddress } from "@/lib/env";
+import { CONTRACT_ADDRESSES } from "@/lib/contracts";
 import toast from "react-hot-toast";
 import styles from "./page.module.css";
+import { ENV } from "@/lib/env";
 
 type DonorInfo = {
   bloodType: string;
@@ -266,7 +267,7 @@ export default function DonorPage() {
   };
 
   const handleRegister = async () => {
-    if (!ENV.BLOOD_DONOR_SYSTEM_ADDRESS) {
+    if (!CONTRACT_ADDRESSES.BLOOD_DONOR_SYSTEM) {
       toast.error("Contract address not configured");
       return;
     }
@@ -283,7 +284,7 @@ export default function DonorPage() {
       }
 
       const sys = getContract(
-        ENV.BLOOD_DONOR_SYSTEM_ADDRESS,
+        CONTRACT_ADDRESSES.BLOOD_DONOR_SYSTEM,
         BloodDonorSystemABI,
         signer
       );
@@ -316,7 +317,7 @@ export default function DonorPage() {
   };
 
   const handleProvideFeedback = async () => {
-    if (!ENV.BLOOD_DONOR_SYSTEM_ADDRESS || !anonId) return;
+    if (!CONTRACT_ADDRESSES.BLOOD_DONOR_SYSTEM || !anonId) return;
 
     setLoading(true);
     const toastId = toast.loading("Providing feedback...");
@@ -330,7 +331,7 @@ export default function DonorPage() {
       }
 
       const sys = getContract(
-        ENV.BLOOD_DONOR_SYSTEM_ADDRESS,
+        CONTRACT_ADDRESSES.BLOOD_DONOR_SYSTEM,
         BloodDonorSystemABI,
         signer
       );
@@ -453,7 +454,7 @@ export default function DonorPage() {
   */
 
   const handleRedeem = async () => {
-    if (!ENV.BLOOD_DONOR_SYSTEM_ADDRESS || !summary) return;
+    if (!CONTRACT_ADDRESSES.BLOOD_DONOR_SYSTEM || !summary) return;
 
     setLoading(true);
     const toastId = toast.loading("Redeeming rewards...");
@@ -462,7 +463,7 @@ export default function DonorPage() {
       const provider = await getBrowserProvider();
       const signer = await provider.getSigner();
       const sys = getContract(
-        ENV.BLOOD_DONOR_SYSTEM_ADDRESS,
+        CONTRACT_ADDRESSES.BLOOD_DONOR_SYSTEM,
         BloodDonorSystemABI,
         signer
       );
@@ -503,13 +504,13 @@ export default function DonorPage() {
   };
 
   const fetchDonationHistory = useCallback(async () => {
-    if (!ENV.BLOOD_DONOR_SYSTEM_ADDRESS || !summary?.anonymousId) return;
+    if (!CONTRACT_ADDRESSES.BLOOD_DONOR_SYSTEM || !summary?.anonymousId) return;
 
     setLoadingHistory(true);
     try {
       const provider = await getBrowserProvider();
       const sys = getContract(
-        ENV.BLOOD_DONOR_SYSTEM_ADDRESS,
+        CONTRACT_ADDRESSES.BLOOD_DONOR_SYSTEM,
         BloodDonorSystemABI,
         provider
       );
@@ -824,7 +825,7 @@ export default function DonorPage() {
       if (!signer) return;
 
       const sys = getContract(
-        assertAddress("BLOOD_DONOR_SYSTEM_ADDRESS"),
+        CONTRACT_ADDRESSES.BLOOD_DONOR_SYSTEM,
         BloodDonorSystemABI,
         signer
       );
