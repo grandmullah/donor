@@ -1084,7 +1084,7 @@ export default function AdminPage() {
                       <th>Blood Type</th>
                       <th>Donations</th>
                       <th>Tier</th>
-                      <th>Consistency</th>
+                      <th>Consistency Score</th>
                       <th>Rewards Earned</th>
                       <th>Rewards Redeemed</th>
                       <th>Status</th>
