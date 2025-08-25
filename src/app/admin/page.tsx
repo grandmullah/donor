@@ -359,17 +359,18 @@ export default function AdminPage() {
         async (anonymousId) => {
           try {
             const donorData = await sys.donors(anonymousId);
+            // Contract returns: [anonymousId, bloodType, donationCount, firstDonationDate, lastDonationDate, consistencyScore, donorTier, hasCompleteResearchProfile, isRegistered, totalRewardsEarned, rewardsRedeemed, salt]
             return {
               anonymousId,
-              bloodType: donorData.bloodType,
-              donationCount: Number(donorData.donationCount),
-              donorTier: Number(donorData.donorTier),
-              consistencyScore: Number(donorData.consistencyScore),
-              isRegistered: donorData.isRegistered,
-              totalRewardsEarned: donorData.totalRewardsEarned.toString(),
-              rewardsRedeemed: donorData.rewardsRedeemed.toString(),
-              firstDonationDate: Number(donorData.firstDonationDate),
-              lastDonationDate: Number(donorData.lastDonationDate),
+              bloodType: donorData[1], // bloodType is at index 1
+              donationCount: Number(donorData[2]), // donationCount is at index 2
+              donorTier: Number(donorData[6]), // donorTier is at index 6
+              consistencyScore: Number(donorData[5]), // consistencyScore is at index 5
+              isRegistered: donorData[8], // isRegistered is at index 8
+              totalRewardsEarned: donorData[9].toString(), // totalRewardsEarned is at index 9
+              rewardsRedeemed: donorData[10].toString(), // rewardsRedeemed is at index 10
+              firstDonationDate: Number(donorData[3]), // firstDonationDate is at index 3
+              lastDonationDate: Number(donorData[4]), // lastDonationDate is at index 4
             };
           } catch (error) {
             console.error(`Failed to load donor ${anonymousId}:`, error);
