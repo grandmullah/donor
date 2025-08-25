@@ -161,78 +161,75 @@ export const BloodDonorSystemABI = [
             "name": "IncentiveParametersUpdated",
             "type": "event"
       },
-      // RESEARCH EVENT COMMENTED OUT
-      // {
-      //   "anonymous": false,
-      //   "inputs": [
-      //     {
-      //       "indexed": true,
-      //       "internalType": "bytes32",
-      //       "name": "anonymousId",
-      //       "type": "bytes32"
-      //     },
-      //     {
-      //       "indexed": false,
-      //       "internalType": "address",
-      //       "name": "researchInstitution",
-      //       "type": "address"
-      //     },
-      //     {
-      //       "indexed": false,
-      //       "internalType": "string",
-      //       "name": "researchPurpose",
-      //       "type": "string"
-      //     }
-      //   ],
-      //   "name": "ResearchConsentGranted",
-      //   "type": "event"
-      // },
-      // RESEARCH EVENT COMMENTED OUT
-      // {
-      //   "anonymous": false,
-      //   "inputs": [
-      //     {
-      //       "indexed": true,
-      //       "internalType": "bytes32",
-      //       "name": "anonymousId",
-      //       "type": "bytes32"
-      //     },
-      //     {
-      //       "indexed": false,
-      //       "internalType": "address",
-      //       "name": "researchInstitution",
-      //       "type": "address"
-      //     }
-      //   ],
-      //   "name": "ResearchConsentRevoked",
-      //   "type": "event"
-      // },
-      // RESEARCH EVENT COMMENTED OUT
-      // {
-      //   "anonymous": false,
-      //   "inputs": [
-      //     {
-      //       "indexed": true,
-      //       "internalType": "bytes32",
-      //       "name": "anonymousId",
-      //       "type": "bytes32"
-      //     },
-      //     {
-      //       "indexed": false,
-      //       "internalType": "address",
-      //       "name": "researchInstitution",
-      //       "type": "address"
-      //     },
-      //     {
-      //       "indexed": false,
-      //       "internalType": "bytes32",
-      //       "name": "recordHash",
-      //       "type": "bytes32"
-      //     }
-      //   ],
-      //   "name": "ResearchDataAccessed",
-      //   "type": "event"
-      // },
+      {
+            "anonymous": false,
+            "inputs": [
+                  {
+                        "indexed": true,
+                        "internalType": "bytes32",
+                        "name": "anonymousId",
+                        "type": "bytes32"
+                  },
+                  {
+                        "indexed": false,
+                        "internalType": "address",
+                        "name": "researchInstitution",
+                        "type": "address"
+                  },
+                  {
+                        "indexed": false,
+                        "internalType": "string",
+                        "name": "researchPurpose",
+                        "type": "string"
+                  }
+            ],
+            "name": "ResearchConsentGranted",
+            "type": "event"
+      },
+      {
+            "anonymous": false,
+            "inputs": [
+                  {
+                        "indexed": true,
+                        "internalType": "bytes32",
+                        "name": "anonymousId",
+                        "type": "bytes32"
+                  },
+                  {
+                        "indexed": false,
+                        "internalType": "address",
+                        "name": "researchInstitution",
+                        "type": "address"
+                  }
+            ],
+            "name": "ResearchConsentRevoked",
+            "type": "event"
+      },
+      {
+            "anonymous": false,
+            "inputs": [
+                  {
+                        "indexed": true,
+                        "internalType": "bytes32",
+                        "name": "anonymousId",
+                        "type": "bytes32"
+                  },
+                  {
+                        "indexed": false,
+                        "internalType": "address",
+                        "name": "researchInstitution",
+                        "type": "address"
+                  },
+                  {
+                        "indexed": false,
+                        "internalType": "bytes32",
+                        "name": "recordHash",
+                        "type": "bytes32"
+                  }
+            ],
+            "name": "ResearchDataAccessed",
+            "type": "event"
+      },
       {
             "anonymous": false,
             "inputs": [
@@ -378,45 +375,43 @@ export const BloodDonorSystemABI = [
             "stateMutability": "view",
             "type": "function"
       },
-      // RESEARCH FUNCTIONALITY COMMENTED OUT
-      // {
-      //   "inputs": [],
-      //   "name": "VERIFIED_RESEARCHER",
-      //   "outputs": [
-      //     {
-      //       "internalType": "bytes32",
-      //       "name": "",
-      //       "type": "bytes32"
-      //     }
-      //   ],
-      //   "stateMutability": "view",
-      //   "type": "function"
-      // },
-      // RESEARCH FUNCTION COMMENTED OUT
-      // {
-      //   "inputs": [
-      //     {
-      //       "internalType": "bytes32",
-      //       "name": "anonymousId",
-      //       "type": "bytes32"
-      //     },
-      //     {
-      //       "internalType": "uint256",
-      //       "name": "recordIndex",
-      //       "type": "uint256"
-      //     }
-      //   ],
-      //   "name": "accessResearchData",
-      //   "outputs": [
-      //     {
-      //       "internalType": "bytes32",
-      //       "name": "recordHash",
-      //       "type": "bytes32"
-      //     }
-      //   ],
-      //   "stateMutability": "nonpayable",
-      //   "type": "function"
-      // },
+      {
+            "inputs": [],
+            "name": "VERIFIED_RESEARCHER",
+            "outputs": [
+                  {
+                        "internalType": "bytes32",
+                        "name": "",
+                        "type": "bytes32"
+                  }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+      },
+      {
+            "inputs": [
+                  {
+                        "internalType": "bytes32",
+                        "name": "anonymousId",
+                        "type": "bytes32"
+                  },
+                  {
+                        "internalType": "uint256",
+                        "name": "recordIndex",
+                        "type": "uint256"
+                  }
+            ],
+            "name": "accessResearchData",
+            "outputs": [
+                  {
+                        "internalType": "bytes32",
+                        "name": "recordHash",
+                        "type": "bytes32"
+                  }
+            ],
+            "stateMutability": "nonpayable",
+            "type": "function"
+      },
       {
             "inputs": [
                   {
@@ -498,20 +493,19 @@ export const BloodDonorSystemABI = [
             "stateMutability": "view",
             "type": "function"
       },
-      // RESEARCH FUNCTION COMMENTED OUT
-      // {
-      //   "inputs": [
-      //     {
-      //       "internalType": "bytes32",
-      //       "name": "anonymousId",
-      //       "type": "bytes32"
-      //     }
-      //   ],
-      //   "name": "completeResearchProfile",
-      //   "outputs": [],
-      //   "stateMutability": "nonpayable",
-      //   "type": "function"
-      // },
+      {
+            "inputs": [
+                  {
+                        "internalType": "bytes32",
+                        "name": "anonymousId",
+                        "type": "bytes32"
+                  }
+            ],
+            "name": "completeResearchProfile",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+      },
       {
             "inputs": [],
             "name": "daoGovernance",
@@ -587,6 +581,26 @@ export const BloodDonorSystemABI = [
                   {
                         "internalType": "bytes32",
                         "name": "anonymousId",
+                        "type": "bytes32"
+                  },
+                  {
+                        "internalType": "string",
+                        "name": "name",
+                        "type": "string"
+                  },
+                  {
+                        "internalType": "string",
+                        "name": "email",
+                        "type": "string"
+                  },
+                  {
+                        "internalType": "string",
+                        "name": "phoneNumber",
+                        "type": "string"
+                  },
+                  {
+                        "internalType": "bytes32",
+                        "name": "passwordHash",
                         "type": "bytes32"
                   },
                   {
@@ -710,53 +724,106 @@ export const BloodDonorSystemABI = [
             "stateMutability": "view",
             "type": "function"
       },
-      // RESEARCH FUNCTION COMMENTED OUT
-      // {
-      //   "inputs": [
-      //     {
-      //       "internalType": "bytes32",
-      //       "name": "anonymousId",
-      //       "type": "bytes32"
-      //     }
-      //   ],
-      //   "name": "getResearchConsents",
-      //   "outputs": [
-      //     {
-      //       "components": [
-      //         {
-      //           "internalType": "address",
-      //           "name": "researchInstitution",
-      //           "type": "address"
-      //         },
-      //         {
-      //           "internalType": "uint256",
-      //           "name": "grantedDate",
-      //           "type": "uint256"
-      //         },
-      //         {
-      //           "internalType": "uint256",
-      //           "name": "revokedDate",
-      //           "type": "uint256"
-      //         },
-      //         {
-      //           "internalType": "bool",
-      //           "name": "isActive",
-      //           "type": "bool"
-      //         },
-      //         {
-      //           "internalType": "string",
-      //           "name": "researchPurpose",
-      //           "type": "string"
-      //         }
-      //       ],
-      //       "internalType": "struct BloodDonorSystem.ResearchConsent[]",
-      //       "name": "",
-      //       "type": "tuple[]"
-      //     }
-      //   ],
-      //   "stateMutability": "view",
-      //   "type": "function"
-      // },
+      {
+            "inputs": [
+                  {
+                        "internalType": "bytes32",
+                        "name": "anonymousId",
+                        "type": "bytes32"
+                  }
+            ],
+            "name": "getDonorProfile",
+            "outputs": [
+                  {
+                        "internalType": "string",
+                        "name": "name",
+                        "type": "string"
+                  },
+                  {
+                        "internalType": "string",
+                        "name": "email",
+                        "type": "string"
+                  },
+                  {
+                        "internalType": "string",
+                        "name": "phoneNumber",
+                        "type": "string"
+                  },
+                  {
+                        "internalType": "string",
+                        "name": "bloodType",
+                        "type": "string"
+                  },
+                  {
+                        "internalType": "uint256",
+                        "name": "donationCount",
+                        "type": "uint256"
+                  },
+                  {
+                        "internalType": "uint256",
+                        "name": "donorTier",
+                        "type": "uint256"
+                  },
+                  {
+                        "internalType": "uint256",
+                        "name": "totalRewardsEarned",
+                        "type": "uint256"
+                  },
+                  {
+                        "internalType": "uint256",
+                        "name": "rewardsRedeemed",
+                        "type": "uint256"
+                  }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+      },
+      {
+            "inputs": [
+                  {
+                        "internalType": "bytes32",
+                        "name": "anonymousId",
+                        "type": "bytes32"
+                  }
+            ],
+            "name": "getResearchConsents",
+            "outputs": [
+                  {
+                        "components": [
+                              {
+                                    "internalType": "address",
+                                    "name": "researchInstitution",
+                                    "type": "address"
+                              },
+                              {
+                                    "internalType": "uint256",
+                                    "name": "grantedDate",
+                                    "type": "uint256"
+                              },
+                              {
+                                    "internalType": "uint256",
+                                    "name": "revokedDate",
+                                    "type": "uint256"
+                              },
+                              {
+                                    "internalType": "bool",
+                                    "name": "isActive",
+                                    "type": "bool"
+                              },
+                              {
+                                    "internalType": "string",
+                                    "name": "researchPurpose",
+                                    "type": "string"
+                              }
+                        ],
+                        "internalType": "struct BloodDonorSystem.ResearchConsent[]",
+                        "name": "",
+                        "type": "tuple[]"
+                  }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+      },
       {
             "inputs": [
                   {
@@ -776,25 +843,24 @@ export const BloodDonorSystemABI = [
             "stateMutability": "view",
             "type": "function"
       },
-      // RESEARCH FUNCTION COMMENTED OUT
-      // {
-      //   "inputs": [
-      //     {
-      //       "internalType": "address",
-      //       "name": "researchInstitution",
-      //       "type": "address"
-      //     },
-      //     {
-      //       "internalType": "string",
-      //       "name": "researchPurpose",
-      //       "type": "string"
-      //     }
-      //   ],
-      //   "name": "grantResearchConsent",
-      //   "outputs": [],
-      //   "stateMutability": "nonpayable",
-      //   "type": "function"
-      // },
+      {
+            "inputs": [
+                  {
+                        "internalType": "address",
+                        "name": "researchInstitution",
+                        "type": "address"
+                  },
+                  {
+                        "internalType": "string",
+                        "name": "researchPurpose",
+                        "type": "string"
+                  }
+            ],
+            "name": "grantResearchConsent",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+      },
       {
             "inputs": [
                   {
@@ -840,6 +906,35 @@ export const BloodDonorSystemABI = [
       {
             "inputs": [
                   {
+                        "internalType": "string",
+                        "name": "email",
+                        "type": "string"
+                  },
+                  {
+                        "internalType": "string",
+                        "name": "password",
+                        "type": "string"
+                  }
+            ],
+            "name": "loginDonor",
+            "outputs": [
+                  {
+                        "internalType": "bytes32",
+                        "name": "anonymousId",
+                        "type": "bytes32"
+                  },
+                  {
+                        "internalType": "bool",
+                        "name": "success",
+                        "type": "bool"
+                  }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+      },
+      {
+            "inputs": [
+                  {
                         "internalType": "bytes32",
                         "name": "anonymousId",
                         "type": "bytes32"
@@ -863,14 +958,9 @@ export const BloodDonorSystemABI = [
       {
             "inputs": [
                   {
-                        "internalType": "bytes32",
-                        "name": "anonymousId",
-                        "type": "bytes32"
-                  },
-                  {
-                        "internalType": "bytes32",
-                        "name": "recordHash",
-                        "type": "bytes32"
+                        "internalType": "address",
+                        "name": "donorAddress",
+                        "type": "address"
                   },
                   {
                         "internalType": "uint256",
@@ -883,9 +973,9 @@ export const BloodDonorSystemABI = [
                         "type": "uint256"
                   },
                   {
-                        "internalType": "address",
-                        "name": "donorAddress",
-                        "type": "address"
+                        "internalType": "bytes32",
+                        "name": "recordHash",
+                        "type": "bytes32"
                   }
             ],
             "name": "recordDonation",
@@ -920,7 +1010,7 @@ export const BloodDonorSystemABI = [
                   },
                   {
                         "internalType": "string",
-                        "name": "phone",
+                        "name": "phoneNumber",
                         "type": "string"
                   },
                   {
@@ -953,35 +1043,6 @@ export const BloodDonorSystemABI = [
       {
             "inputs": [
                   {
-                        "internalType": "string",
-                        "name": "email",
-                        "type": "string"
-                  },
-                  {
-                        "internalType": "string",
-                        "name": "password",
-                        "type": "string"
-                  }
-            ],
-            "name": "loginDonor",
-            "outputs": [
-                  {
-                        "internalType": "bytes32",
-                        "name": "anonymousId",
-                        "type": "bytes32"
-                  },
-                  {
-                        "internalType": "bool",
-                        "name": "success",
-                        "type": "bool"
-                  }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-      },
-      {
-            "inputs": [
-                  {
                         "internalType": "bytes32",
                         "name": "role",
                         "type": "bytes32"
@@ -997,65 +1058,63 @@ export const BloodDonorSystemABI = [
             "stateMutability": "nonpayable",
             "type": "function"
       },
-      // RESEARCH FUNCTION COMMENTED OUT
-      // {
-      //   "inputs": [
-      //     {
-      //       "internalType": "bytes32",
-      //       "name": "",
-      //       "type": "bytes32"
-      //     },
-      //     {
-      //       "internalType": "uint256",
-      //       "name": "",
-      //       "type": "uint256"
-      //     }
-      //   ],
-      //   "name": "researchConsents",
-      //   "outputs": [
-      //     {
-      //       "internalType": "address",
-      //       "name": "researchInstitution",
-      //       "type": "address"
-      //     },
-      //     {
-      //       "internalType": "uint256",
-      //       "name": "grantedDate",
-      //       "type": "uint256"
-      //     },
-      //     {
-      //       "internalType": "uint256",
-      //       "name": "revokedDate",
-      //       "type": "uint256"
-      //     },
-      //     {
-      //       "internalType": "bool",
-      //       "name": "isActive",
-      //       "type": "bool"
-      //     },
-      //     {
-      //       "internalType": "string",
-      //       "name": "researchPurpose",
-      //       "type": "string"
-      //     }
-      //   ],
-      //   "stateMutability": "view",
-      //   "type": "function"
-      // },
-      // RESEARCH FUNCTION COMMENTED OUT
-      // {
-      //   "inputs": [
-      //     {
-      //       "internalType": "address",
-      //       "name": "researchInstitution",
-      //       "type": "address"
-      //     }
-      //   ],
-      //   "name": "revokeResearchConsent",
-      //   "outputs": [],
-      //   "stateMutability": "nonpayable",
-      //   "type": "function"
-      // },
+      {
+            "inputs": [
+                  {
+                        "internalType": "bytes32",
+                        "name": "",
+                        "type": "bytes32"
+                  },
+                  {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                  }
+            ],
+            "name": "researchConsents",
+            "outputs": [
+                  {
+                        "internalType": "address",
+                        "name": "researchInstitution",
+                        "type": "address"
+                  },
+                  {
+                        "internalType": "uint256",
+                        "name": "grantedDate",
+                        "type": "uint256"
+                  },
+                  {
+                        "internalType": "uint256",
+                        "name": "revokedDate",
+                        "type": "uint256"
+                  },
+                  {
+                        "internalType": "bool",
+                        "name": "isActive",
+                        "type": "bool"
+                  },
+                  {
+                        "internalType": "string",
+                        "name": "researchPurpose",
+                        "type": "string"
+                  }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+      },
+      {
+            "inputs": [
+                  {
+                        "internalType": "address",
+                        "name": "researchInstitution",
+                        "type": "address"
+                  }
+            ],
+            "name": "revokeResearchConsent",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+      },
       {
             "inputs": [
                   {

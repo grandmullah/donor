@@ -359,35 +359,19 @@ export default function AdminPage() {
         async (anonymousId) => {
           try {
             const donorData = await sys.donors(anonymousId);
-            console.log(`Raw donor data for ${anonymousId}:`, donorData);
-            console.log("Data array length:", donorData.length);
-            console.log("Individual values:", {
-              0: donorData[0],
-              1: donorData[1],
-              2: donorData[2],
-              3: donorData[3],
-              4: donorData[4],
-              5: donorData[5],
-              6: donorData[6],
-              7: donorData[7],
-              8: donorData[8],
-              9: donorData[9],
-              10: donorData[10],
-              11: donorData[11],
-            });
-
-            // Contract returns: [anonymousId, bloodType, donationCount, firstDonationDate, lastDonationDate, consistencyScore, donorTier, hasCompleteResearchProfile, isRegistered, totalRewardsEarned, rewardsRedeemed, salt]
+            // FIXED: Correct mapping based on actual contract Donor struct
+            // Contract Donor struct order: [anonymousId, name, email, phoneNumber, passwordHash, bloodType, donationCount, firstDonationDate, lastDonationDate, consistencyScore, donorTier, hasCompleteResearchProfile, isRegistered, totalRewardsEarned, rewardsRedeemed, salt]
             return {
               anonymousId,
-              bloodType: donorData[1], // bloodType is at index 1
-              donationCount: Number(donorData[2]), // donationCount is at index 2
-              donorTier: Number(donorData[6]), // donorTier is at index 6
-              consistencyScore: Number(donorData[5]), // consistencyScore is at index 5
-              isRegistered: donorData[8], // isRegistered is at index 8
-              totalRewardsEarned: donorData[9].toString(), // totalRewardsEarned is at index 9
-              rewardsRedeemed: donorData[10].toString(), // rewardsRedeemed is at index 10
-              firstDonationDate: Number(donorData[3]), // firstDonationDate is at index 3
-              lastDonationDate: Number(donorData[4]), // lastDonationDate is at index 4
+              bloodType: donorData[5] || "Unknown", // bloodType is at index 5
+              donationCount: Number(donorData[6]) || 0, // donationCount is at index 6
+              donorTier: Number(donorData[10]) || 0, // donorTier is at index 10
+              consistencyScore: Number(donorData[9]) || 0, // consistencyScore is at index 9
+              isRegistered: donorData[12] || false, // isRegistered is at index 12
+              totalRewardsEarned: donorData[13].toString(), // totalRewardsEarned is at index 13
+              rewardsRedeemed: donorData[14].toString(), // rewardsRedeemed is at index 14
+              firstDonationDate: Number(donorData[7]) || 0, // firstDonationDate is at index 7
+              lastDonationDate: Number(donorData[8]) || 0, // lastDonationDate is at index 8
             };
           } catch (error) {
             console.error(`Failed to load donor ${anonymousId}:`, error);
