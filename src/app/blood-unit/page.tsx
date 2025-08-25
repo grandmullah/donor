@@ -436,7 +436,7 @@ export default function BloodUnitPage() {
   return (
     <main className={styles.container}>
       <div className={styles.hero}>
-        <h1 className={styles.title}>Blood Unit Portal</h1>
+        <h1 className={styles.title}>Hospital Blood Donor Unit </h1>
         <p className={styles.subtitle}>
           Record blood donations and manage unit information with secure
           blockchain verification

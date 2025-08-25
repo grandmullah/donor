@@ -924,7 +924,7 @@ export default function AdminPage() {
       <div className={styles.hero}>
         <h1 className={styles.title}>Admin Portal</h1>
         <p className={styles.subtitle}>
-          Manage research institutions, configure system parameters, and oversee
+         configure system parameters, and oversee
           platform governance
         </p>
       </div>
@@ -1316,7 +1316,7 @@ export default function AdminPage() {
           </div>
 
           {/* Research Institution Management */}
-          <div className={styles.card}>
+          {/* <div className={styles.card}>
             <h2 className={styles.cardTitle}>
               <span className={styles.cardIcon}>🏛️</span>
               Research Institution Management
@@ -1365,7 +1365,7 @@ export default function AdminPage() {
                 {loading ? "Processing..." : "Remove Institution"}
               </button>
             </div>
-          </div>
+          </div> */}
 
           {/* Tier Management */}
           <div className={styles.card}>
