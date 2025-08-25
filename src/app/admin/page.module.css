@@ -540,3 +540,339 @@
   font-weight: 600;
   margin-bottom: 0.5rem;
 }
+
+/* Enhanced Donor Controls */
+.donorControls {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  align-items: center;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.searchInput {
+  flex: 1;
+  min-width: 250px;
+  padding: 0.75rem 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  font-size: 14px;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: #667eea;
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.searchInput::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.filterSelect {
+  padding: 0.75rem 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  font-size: 14px;
+  backdrop-filter: blur(10px);
+  min-width: 120px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.filterSelect:focus {
+  outline: none;
+  border-color: #667eea;
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.filterSelect option {
+  background: #1f2937;
+  color: #ffffff;
+}
+
+.donorStats {
+  display: flex;
+  gap: 1rem;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+  align-items: center;
+  margin-bottom: 1rem;
+  padding: 0.5rem 1rem;
+  background: rgba(102, 126, 234, 0.1);
+  border-radius: 8px;
+  border: 1px solid rgba(102, 126, 234, 0.2);
+}
+
+/* Enhanced Table Styles */
+.tableWrapper {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  overflow: hidden;
+  margin-top: 1rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.donorTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.donorTable th {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.3), rgba(118, 75, 162, 0.3));
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  backdrop-filter: blur(10px);
+}
+
+.donorTable td {
+  padding: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 14px;
+  vertical-align: middle;
+}
+
+.donorTable tbody tr {
+  transition: all 0.2s ease;
+}
+
+.donorTable tbody tr:hover {
+  background: rgba(102, 126, 234, 0.1);
+  transform: scale(1.001);
+}
+
+.anonymousId {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.anonymousId:hover {
+  color: #667eea;
+  background: rgba(102, 126, 234, 0.1);
+  border-radius: 4px;
+  padding: 0.25rem 0.5rem;
+  margin: -0.25rem -0.5rem;
+}
+
+/* Enhanced Blood Type Styling */
+.bloodType {
+  display: inline-block;
+  padding: 0.5rem 0.75rem;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 12px;
+  text-align: center;
+  min-width: 50px;
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+}
+
+.bloodType:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.bloodType.bloodTypeO {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+}
+
+.bloodType.bloodTypeA {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+}
+
+.bloodType.bloodTypeB {
+  background: linear-gradient(135deg, #16a34a, #15803d);
+}
+
+.bloodType.bloodTypeAB {
+  background: linear-gradient(135deg, #7c3aed, #6d28d9);
+}
+
+/* Enhanced Tier Styling */
+.tier {
+  display: inline-block;
+  padding: 0.5rem 0.75rem;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 12px;
+  text-align: center;
+  min-width: 70px;
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+}
+
+.tier:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.tier.tier0 {
+  background: linear-gradient(135deg, #6b7280, #4b5563);
+}
+
+.tier.tier1 {
+  background: linear-gradient(135deg, #cd7f32, #b8691a);
+}
+
+.tier.tier2 {
+  background: linear-gradient(135deg, #c0c0c0, #a8a8a8);
+}
+
+.tier.tier3 {
+  background: linear-gradient(135deg, #ffd700, #f59e0b);
+  color: #000000;
+}
+
+.tier.tier4 {
+  background: linear-gradient(135deg, #e5e4e2, #d1d5db);
+  color: #000000;
+}
+
+/* Enhanced Status Styling */
+.status {
+  display: inline-block;
+  padding: 0.5rem 0.75rem;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 12px;
+  text-align: center;
+  min-width: 60px;
+  transition: all 0.2s ease;
+}
+
+.status:hover {
+  transform: translateY(-1px);
+}
+
+.status.active {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.3), rgba(34, 197, 94, 0.2));
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.4);
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.2);
+}
+
+.status.inactive {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.3), rgba(239, 68, 68, 0.2));
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.2);
+}
+
+/* Pagination Styles */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.paginationButton {
+  padding: 0.5rem 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+  font-weight: 500;
+  backdrop-filter: blur(10px);
+}
+
+.paginationButton:hover:not(:disabled) {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border-color: #667eea;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.paginationButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.paginationInfo {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 14px;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  background: rgba(102, 126, 234, 0.1);
+  border-radius: 8px;
+  border: 1px solid rgba(102, 126, 234, 0.2);
+}
+
+/* Responsive Enhancements */
+@media (max-width: 768px) {
+  .donorControls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .searchInput {
+    min-width: auto;
+  }
+
+  .filterSelect {
+    min-width: auto;
+  }
+
+  .tableWrapper {
+    overflow-x: auto;
+  }
+
+  .donorTable {
+    min-width: 800px;
+  }
+
+  .donorTable th,
+  .donorTable td {
+    padding: 0.75rem 0.5rem;
+    font-size: 12px;
+  }
+
+  .pagination {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .paginationButton {
+    width: 100%;
+    max-width: 200px;
+  }
+}

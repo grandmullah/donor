@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useWallet } from "@/contexts/WalletContext";
 import { getBrowserProvider, getContract } from "@/lib/eth";
 import DonorDAOGovernanceABI from "@/lib/abis/DonorDAOGovernance";
@@ -74,6 +74,16 @@ export default function AdminPage() {
   const [donors, setDonors] = useState<DonorInfo[]>([]);
   const [loadingDonors, setLoadingDonors] = useState(false);
   const [donorCount, setDonorCount] = useState(0);
+
+  // Search and filter states
+  const [searchTerm, setSearchTerm] = useState("");
+  const [bloodTypeFilter, setBloodTypeFilter] = useState("all");
+  const [tierFilter, setTierFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
+
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [donorsPerPage] = useState(10);
 
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(false);
@@ -325,6 +335,56 @@ export default function AdminPage() {
       console.error("Failed to load system info:", error);
     }
   };
+
+  // Filter and search donors
+  const filteredDonors = useMemo(() => {
+    let filtered = donors;
+
+    // Search filter
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      filtered = filtered.filter(
+        (donor) =>
+          donor.anonymousId.toLowerCase().includes(term) ||
+          donor.bloodType.toLowerCase().includes(term)
+      );
+    }
+
+    // Blood type filter
+    if (bloodTypeFilter !== "all") {
+      filtered = filtered.filter(
+        (donor) => donor.bloodType === bloodTypeFilter
+      );
+    }
+
+    // Tier filter
+    if (tierFilter !== "all") {
+      filtered = filtered.filter(
+        (donor) => donor.donorTier.toString() === tierFilter
+      );
+    }
+
+    // Status filter
+    if (statusFilter !== "all") {
+      const isActive = statusFilter === "active";
+      filtered = filtered.filter((donor) => donor.isRegistered === isActive);
+    }
+
+    return filtered;
+  }, [donors, searchTerm, bloodTypeFilter, tierFilter, statusFilter]);
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredDonors.length / donorsPerPage);
+  const startIndex = (currentPage - 1) * donorsPerPage;
+  const paginatedDonors = filteredDonors.slice(
+    startIndex,
+    startIndex + donorsPerPage
+  );
+
+  // Reset pagination when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, bloodTypeFilter, tierFilter, statusFilter]);
 
   const loadDonors = async () => {
     if (!CONTRACT_ADDRESSES.BLOOD_DONOR_SYSTEM) return;
@@ -1055,11 +1115,55 @@ export default function AdminPage() {
               </div>
             </div>
 
-            {/* Refresh Button */}
-            <div
-              className={styles.actionButtons}
-              style={{ marginBottom: "1rem" }}
-            >
+            {/* Donor Controls */}
+            <div className={styles.donorControls}>
+              <input
+                type="text"
+                placeholder="Search by Anonymous ID or Blood Type..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className={styles.searchInput}
+              />
+
+              <select
+                value={bloodTypeFilter}
+                onChange={(e) => setBloodTypeFilter(e.target.value)}
+                className={styles.filterSelect}
+              >
+                <option value="all">All Blood Types</option>
+                <option value="O+">O+</option>
+                <option value="O-">O-</option>
+                <option value="A+">A+</option>
+                <option value="A-">A-</option>
+                <option value="B+">B+</option>
+                <option value="B-">B-</option>
+                <option value="AB+">AB+</option>
+                <option value="AB-">AB-</option>
+              </select>
+
+              <select
+                value={tierFilter}
+                onChange={(e) => setTierFilter(e.target.value)}
+                className={styles.filterSelect}
+              >
+                <option value="all">All Tiers</option>
+                <option value="0">None</option>
+                <option value="1">Bronze</option>
+                <option value="2">Silver</option>
+                <option value="3">Gold</option>
+                <option value="4">Platinum</option>
+              </select>
+
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className={styles.filterSelect}
+              >
+                <option value="all">All Status</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+              </select>
+
               <button
                 className={`${styles.primaryButton} ${
                   loadingDonors ? styles.loading : ""
@@ -1067,9 +1171,21 @@ export default function AdminPage() {
                 onClick={loadDonors}
                 disabled={loadingDonors}
               >
-                {loadingDonors ? "Loading Donors..." : "Refresh Donor List"}
+                {loadingDonors ? "Loading..." : "Refresh"}
               </button>
             </div>
+
+            {/* Filter Results Info */}
+            {donors.length > 0 && (
+              <div className={styles.donorStats}>
+                <span>
+                  Showing {paginatedDonors.length} of {filteredDonors.length}{" "}
+                  donors
+                  {filteredDonors.length !== donors.length &&
+                    ` (filtered from ${donors.length} total)`}
+                </span>
+              </div>
+            )}
 
             {/* Donors Table */}
             {loadingDonors ? (
@@ -1092,7 +1208,7 @@ export default function AdminPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {donors.map((donor) => (
+                    {paginatedDonors.map((donor) => (
                       <tr key={donor.anonymousId}>
                         <td className={styles.anonymousId}>
                           {donor.anonymousId.slice(0, 8)}...
@@ -1156,6 +1272,40 @@ export default function AdminPage() {
                     ))}
                   </tbody>
                 </table>
+
+                {/* Pagination Controls */}
+                {totalPages > 1 && (
+                  <div className={styles.pagination}>
+                    <button
+                      className={styles.paginationButton}
+                      onClick={() =>
+                        setCurrentPage((prev) => Math.max(prev - 1, 1))
+                      }
+                      disabled={currentPage === 1}
+                    >
+                      Previous
+                    </button>
+
+                    <div className={styles.paginationInfo}>
+                      Page {currentPage} of {totalPages}
+                    </div>
+
+                    <button
+                      className={styles.paginationButton}
+                      onClick={() =>
+                        setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                      }
+                      disabled={currentPage === totalPages}
+                    >
+                      Next
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : filteredDonors.length === 0 && donors.length > 0 ? (
+              <div className={styles.emptyMessage}>
+                <p>No donors match your current filters.</p>
+                <p>Try adjusting your search criteria or filters.</p>
               </div>
             ) : (
               <div className={styles.emptyMessage}>
