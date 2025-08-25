@@ -359,6 +359,23 @@ export default function AdminPage() {
         async (anonymousId) => {
           try {
             const donorData = await sys.donors(anonymousId);
+            console.log(`Raw donor data for ${anonymousId}:`, donorData);
+            console.log("Data array length:", donorData.length);
+            console.log("Individual values:", {
+              0: donorData[0],
+              1: donorData[1],
+              2: donorData[2],
+              3: donorData[3],
+              4: donorData[4],
+              5: donorData[5],
+              6: donorData[6],
+              7: donorData[7],
+              8: donorData[8],
+              9: donorData[9],
+              10: donorData[10],
+              11: donorData[11],
+            });
+
             // Contract returns: [anonymousId, bloodType, donationCount, firstDonationDate, lastDonationDate, consistencyScore, donorTier, hasCompleteResearchProfile, isRegistered, totalRewardsEarned, rewardsRedeemed, salt]
             return {
               anonymousId,
