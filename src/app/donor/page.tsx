@@ -77,6 +77,10 @@ export default function DonorPage() {
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
 
+  // Add login state
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [loggedInAnonymousId, setLoggedInAnonymousId] = useState<string>("");
+
   // Feedback form states
   const [feedbackDonationIndex, setFeedbackDonationIndex] =
     useState<string>("");
@@ -773,6 +777,10 @@ export default function DonorPage() {
         toast.success("Login successful! Welcome back! 🎉", { id: toastId });
         setShowLoginPopup(false);
 
+        // Set login state
+        setIsLoggedIn(true);
+        setLoggedInAnonymousId(anonymousId);
+
         // Reset form
         setLoginData({
           email: "",
@@ -812,6 +820,15 @@ export default function DonorPage() {
 
     setSelectedReward(reward);
     setShowRedemptionModal(true);
+  };
+
+  // Handle logout
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setLoggedInAnonymousId("");
+    setSummary(null);
+    setActiveTab("overview");
+    toast.success("Logged out successfully");
   };
 
   const confirmRedemption = async () => {
@@ -878,6 +895,51 @@ export default function DonorPage() {
             </p>
           </div>
         </div>
+      ) : isLoggedIn && !summary?.donor.isRegistered ? (
+        <div className={styles.card}>
+          <h2 className={styles.cardTitle}>
+            <span className={styles.cardIcon}>🎉</span>
+            Welcome Back!
+          </h2>
+          <p className={styles.description}>
+            You have successfully logged in with Anonymous ID:{" "}
+            <strong>{loggedInAnonymousId}</strong>
+          </p>
+          <div className={styles.formGrid}>
+            <div className={styles.formField}>
+              <label className={styles.label}>Blood Type</label>
+              <select
+                className={styles.select}
+                value={bloodType}
+                onChange={(e) => setBloodType(e.target.value)}
+              >
+                {["O-", "A-", "B-", "AB-"].map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <div className={styles.actionButtons}>
+            <button
+              className={`${styles.primaryButton} ${
+                loading ? styles.loading : ""
+              }`}
+              onClick={() => setShowRegistrationPopup(true)}
+              disabled={!bloodType || loading}
+            >
+              {loading ? "Processing..." : "Complete Registration"}
+            </button>
+            <button
+              className={styles.secondaryButton}
+              onClick={handleLogout}
+              disabled={loading}
+            >
+              Logout
+            </button>
+          </div>
+        </div>
       ) : !summary?.donor.isRegistered ? (
         <div className={styles.card}>
           <h2 className={styles.cardTitle}>
@@ -921,6 +983,17 @@ export default function DonorPage() {
         </div>
       ) : (
         <div className={styles.stack}>
+          {/* Dashboard Header with Logout */}
+          <div className={styles.dashboardHeader}>
+            <div className={styles.welcomeMessage}>
+              <h3>Welcome back! 🎉</h3>
+              <p>You are logged in and ready to manage your donations</p>
+            </div>
+            <button className={styles.logoutButton} onClick={handleLogout}>
+              🚪 Logout
+            </button>
+          </div>
+
           {/* Tab Navigation */}
           <div className={styles.tabNav}>
             {[
