@@ -12,11 +12,11 @@ const nextConfig: NextConfig = {
             unoptimized: true
       },
 
-      // Set base path for GitHub Pages from environment variable
-      basePath: process.env.NEXT_PUBLIC_BASE_PATH || '',
+      // Set base path for GitHub Pages (will be set by environment variable)
+      basePath: process.env.NODE_ENV === 'production' ? '/donor' : '',
 
-      // Configure asset prefix for GitHub Pages from environment variable
-      assetPrefix: process.env.NEXT_PUBLIC_ASSET_PREFIX || '',
+      // Configure asset prefix for GitHub Pages
+      assetPrefix: process.env.NODE_ENV === 'production' ? '/donor/' : '',
 
       // Ensure proper handling of static files
       distDir: 'out'
