@@ -1,8 +1,8 @@
 import { BrowserProvider, JsonRpcProvider, Contract, type ContractRunner, type Eip1193Provider, type InterfaceAbi } from "ethers";
-import { ENV } from "@/lib/env";
+// import { ENV } from "@/lib/env";
 
 export function getPublicProvider() {
-      return new JsonRpcProvider(ENV.RPC_URL);
+      return new JsonRpcProvider("https://bsc-dataseed1.binance.org/")   ;
 }
 
 export async function getBrowserProvider() {

@@ -4,10 +4,11 @@ import { useState, useEffect } from "react";
 import { useWallet } from "@/contexts/WalletContext";
 import { getBrowserProvider, getContract } from "@/lib/eth";
 import BloodDonorSystemABI from "@/lib/abis/BloodDonorSystem";
-import { ENV } from "@/lib/env";
+// import { ENV } from "@/lib/env";
 import toast from "react-hot-toast";
 import { ethers } from "ethers";
 import styles from "./page.module.css";
+import { CONTRACT_ADDRESSES } from "@/lib/contracts";
 
 export default function BloodUnitPage() {
   const { address, switchToAddress } = useWallet();
@@ -55,7 +56,7 @@ export default function BloodUnitPage() {
     try {
       const provider = await getBrowserProvider();
       const contract = getContract(
-        ENV.BLOOD_DONOR_SYSTEM_ADDRESS,
+        CONTRACT_ADDRESSES.BLOOD_DONOR_SYSTEM,   
         BloodDonorSystemABI,
         provider
       );
@@ -193,11 +194,11 @@ export default function BloodUnitPage() {
         setHasBloodUnitRole(true);
 
         // Load stats for recognized addresses
-        if (ENV.BLOOD_DONOR_SYSTEM_ADDRESS) {
+        if (CONTRACT_ADDRESSES.BLOOD_DONOR_SYSTEM) {
           try {
             const provider = await getBrowserProvider();
             const sys = getContract(
-              ENV.BLOOD_DONOR_SYSTEM_ADDRESS,
+              CONTRACT_ADDRESSES.BLOOD_DONOR_SYSTEM,
               BloodDonorSystemABI,
               provider
             );
@@ -216,7 +217,7 @@ export default function BloodUnitPage() {
         return;
       }
 
-      if (!ENV.BLOOD_DONOR_SYSTEM_ADDRESS) {
+      if (!CONTRACT_ADDRESSES.BLOOD_DONOR_SYSTEM) {
         console.error("Contract address not configured");
         return;
       }
@@ -236,7 +237,7 @@ export default function BloodUnitPage() {
         }
 
         // Test contract connectivity
-        const sysCode = await provider.getCode(ENV.BLOOD_DONOR_SYSTEM_ADDRESS);
+        const sysCode = await provider.getCode(CONTRACT_ADDRESSES.BLOOD_DONOR_SYSTEM);
         console.log("System contract code exists:", sysCode !== "0x");
 
         if (sysCode === "0x") {
@@ -246,7 +247,7 @@ export default function BloodUnitPage() {
         }
 
         const sys = getContract(
-          ENV.BLOOD_DONOR_SYSTEM_ADDRESS,
+          CONTRACT_ADDRESSES.BLOOD_DONOR_SYSTEM,
           BloodDonorSystemABI,
           provider
         );
@@ -330,7 +331,7 @@ export default function BloodUnitPage() {
   };
 
   const handleRecordDonation = async () => {
-    if (!ENV.BLOOD_DONOR_SYSTEM_ADDRESS) {
+    if (!CONTRACT_ADDRESSES.BLOOD_DONOR_SYSTEM) {
       toast.error("Contract not configured");
       return;
     }
@@ -347,7 +348,7 @@ export default function BloodUnitPage() {
       }
 
       const sys = getContract(
-        ENV.BLOOD_DONOR_SYSTEM_ADDRESS,
+        CONTRACT_ADDRESSES.BLOOD_DONOR_SYSTEM,
         BloodDonorSystemABI,
         signer
       );
@@ -387,7 +388,7 @@ export default function BloodUnitPage() {
   };
 
   const handleCompleteResearchProfile = async () => {
-    if (!ENV.BLOOD_DONOR_SYSTEM_ADDRESS) {
+    if (!CONTRACT_ADDRESSES.BLOOD_DONOR_SYSTEM) {
       toast.error("Contract not configured");
       return;
     }
@@ -404,7 +405,7 @@ export default function BloodUnitPage() {
       }
 
       const sys = getContract(
-        ENV.BLOOD_DONOR_SYSTEM_ADDRESS,
+        CONTRACT_ADDRESSES.BLOOD_DONOR_SYSTEM,
         BloodDonorSystemABI,
         signer
       );
@@ -486,7 +487,7 @@ export default function BloodUnitPage() {
               <br />
               Connected Address: {address}
               <br />
-              System Contract: {ENV.BLOOD_DONOR_SYSTEM_ADDRESS}
+                  System Contract: {CONTRACT_ADDRESSES.BLOOD_DONOR_SYSTEM}
               <br />
               Known Admin: 0xFB42A0d228609942ccd685E0D9ceF1825F26Cb78
               <br />

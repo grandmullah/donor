@@ -16,9 +16,7 @@ export default function Home() {
             <Link href="/donor" className={styles.ctaPrimary}>
               Start Donating
             </Link>
-            {/* <Link href="/research" className={styles.ctaButton}>
-              For Researchers
-            </Link> */}
+         
           </div>
         </div>
       </section>

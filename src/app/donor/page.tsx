@@ -7,7 +7,7 @@ import BloodDonorSystemABI from "@/lib/abis/BloodDonorSystem";
 import { CONTRACT_ADDRESSES } from "@/lib/contracts";
 import toast from "react-hot-toast";
 import styles from "./page.module.css";
-import { ENV } from "@/lib/env";
+// import { ENV } from "@/lib/env";
 
 type DonorInfo = {
   bloodType: string;
@@ -740,7 +740,7 @@ export default function DonorPage() {
       return;
     }
 
-    if (!ENV.BLOOD_DONOR_SYSTEM_ADDRESS) {
+    if (!CONTRACT_ADDRESSES.BLOOD_DONOR_SYSTEM) {
       toast.error("Contract address not configured");
       return;
     }
@@ -757,7 +757,7 @@ export default function DonorPage() {
       }
 
       const sys = getContract(
-        ENV.BLOOD_DONOR_SYSTEM_ADDRESS,
+        CONTRACT_ADDRESSES.BLOOD_DONOR_SYSTEM,
         BloodDonorSystemABI,
         signer
       );
@@ -864,7 +864,7 @@ export default function DonorPage() {
         <h1 className={styles.title}>Rare Blood Donor Portal</h1>
         <p className={styles.subtitle}>
           Manage your blood donations, track rewards, and contribute to
-          life-saving 
+          life-saving
         </p>
       </div>
 
