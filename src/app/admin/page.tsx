@@ -182,7 +182,7 @@ ${
     }
   };
 
-  // Update all blood type multipliers to ensure proper rewards
+  // Update only rare blood type multipliers to ensure proper rewards
   const updateAllBloodTypeMultipliers = async () => {
     try {
       const provider = await getBrowserProvider();
@@ -197,16 +197,12 @@ ${
         provider
       );
 
-      // Define all blood type multipliers (ensuring users get 150-250 BDT rewards)
+      // Define only RARE blood type multipliers (ensuring users get 150-250 BDT rewards)
       const bloodTypeMultipliers = {
         "O-": 230, // Universal donor - highest multiplier (230 BDT)
         "AB-": 250, // Rarest blood type (250 BDT)
         "B-": 200, // Rare blood type (200 BDT)
         "A-": 150, // Uncommon blood type (150 BDT)
-        "A+": 120, // Common but in demand (120 BDT)
-        "O+": 130, // Most common, but universal donor (130 BDT)
-        "B+": 140, // Common (140 BDT)
-        "AB+": 100, // Common, but not universal (100 BDT)
       };
 
       let successCount = 0;
@@ -233,27 +229,25 @@ ${
       }
 
       const message = `
-🚀 Blood Type Multipliers Update Complete!
+🚀 Rare Blood Type Multipliers Update Complete!
 
 📊 Results:
 ${results.join("\n")}
 
 📈 Summary:
-• Successfully updated: ${successCount} blood types
-• Failed to update: ${errorCount} blood types
-• Total blood types: ${Object.keys(bloodTypeMultipliers).length}
+• Successfully updated: ${successCount} rare blood types
+• Failed to update: ${errorCount} rare blood types
+• Total rare blood types: ${Object.keys(bloodTypeMultipliers).length}
 
-💡 Expected Rewards:
-• O-: 230 BDT (Universal donor)
-• AB-: 250 BDT (Rarest)
-• B-: 200 BDT (Rare)
-• A-: 150 BDT (Uncommon)
-• A+: 120 BDT (Common)
-• O+: 130 BDT (Common)
-• B+: 140 BDT (Common)
-• AB+: 100 BDT (Common)
+💡 Expected Rewards for Rare Blood Types:
+• O-: 230 BDT (Universal donor - highest)
+• AB-: 250 BDT (Rarest blood type)
+• B-: 200 BDT (Rare blood type)
+• A-: 150 BDT (Uncommon blood type)
 
-🎯 Now donors should receive proper rewards between 100-250 BDT!
+🎯 Now rare blood type donors should receive proper rewards between 150-250 BDT!
+
+💡 Note: Common blood types (A+, O+, B+, AB+) were not updated and will keep their existing multipliers.
       `;
 
       console.log(message);
@@ -1916,7 +1910,7 @@ ${
                     marginRight: "0.5rem",
                   }}
                 >
-                  🚀 Update All Blood Type Multipliers
+                  🚀 Update Rare Blood Type Multipliers
                 </button>
 
                 <button
