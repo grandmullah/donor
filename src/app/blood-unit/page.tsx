@@ -56,7 +56,7 @@ export default function BloodUnitPage() {
     try {
       const provider = await getBrowserProvider();
       const contract = getContract(
-        CONTRACT_ADDRESSES.BLOOD_DONOR_SYSTEM,   
+        CONTRACT_ADDRESSES.BLOOD_DONOR_SYSTEM,
         BloodDonorSystemABI,
         provider
       );
@@ -237,7 +237,9 @@ export default function BloodUnitPage() {
         }
 
         // Test contract connectivity
-        const sysCode = await provider.getCode(CONTRACT_ADDRESSES.BLOOD_DONOR_SYSTEM);
+        const sysCode = await provider.getCode(
+          CONTRACT_ADDRESSES.BLOOD_DONOR_SYSTEM
+        );
         console.log("System contract code exists:", sysCode !== "0x");
 
         if (sysCode === "0x") {
@@ -353,11 +355,10 @@ export default function BloodUnitPage() {
         signer
       );
       const tx = await sys.recordDonation(
-        form.anonymousId,
-        form.recordHash,
+        form.donorAddress,
         BigInt(form.hb),
         BigInt(form.volume),
-        form.donorAddress
+        form.recordHash
       );
 
       toast.loading("Waiting for confirmation...", { id: toastId });
@@ -487,7 +488,7 @@ export default function BloodUnitPage() {
               <br />
               Connected Address: {address}
               <br />
-                  System Contract: {CONTRACT_ADDRESSES.BLOOD_DONOR_SYSTEM}
+              System Contract: {CONTRACT_ADDRESSES.BLOOD_DONOR_SYSTEM}
               <br />
               Known Admin: 0xFB42A0d228609942ccd685E0D9ceF1825F26Cb78
               <br />
