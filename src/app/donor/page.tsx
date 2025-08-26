@@ -6,6 +6,7 @@ import { getBrowserProvider, getContract } from "@/lib/eth";
 import BloodDonorSystemABI from "@/lib/abis/BloodDonorSystem";
 import { CONTRACT_ADDRESSES } from "@/lib/contracts";
 import toast from "react-hot-toast";
+import { ethers } from "ethers";
 import styles from "./page.module.css";
 // import { ENV } from "@/lib/env";
 
@@ -490,6 +491,19 @@ export default function DonorPage() {
     return new Date(timestamp * 1000).toLocaleDateString();
   };
 
+  // Helper function to format Wei values to human-readable token amounts
+  const formatTokenAmount = (weiValue: string | bigint) => {
+    try {
+      const formatted = ethers.formatEther(weiValue);
+      const number = parseFloat(formatted);
+      // Round to 2 decimal places for display
+      return number.toFixed(2);
+    } catch (error) {
+      console.error("Error formatting token amount:", error);
+      return "0.00";
+    }
+  };
+
   // RESEARCH FUNCTION COMMENTED OUT
   /*
   const formatAddress = (addr: string) => {
@@ -810,10 +824,14 @@ export default function DonorPage() {
   const handleRedeemReward = async (reward: RewardItem) => {
     if (!summary) return;
 
-    const availableTokens = parseInt(summary.availableRewards);
+    const availableTokens = parseFloat(
+      formatTokenAmount(summary.availableRewards)
+    );
     if (availableTokens < reward.cost) {
       toast.error(
-        `Insufficient tokens. You need ${reward.cost} BDT tokens but have ${availableTokens}.`
+        `Insufficient tokens. You need ${
+          reward.cost
+        } BDT tokens but have ${availableTokens.toFixed(2)}.`
       );
       return;
     }
@@ -848,11 +866,9 @@ export default function DonorPage() {
       );
 
       // Call the smart contract to redeem rewards
-      // The tokens will be transferred to the admin wallet
-      const tx = await sys.redeemRewards(
-        BigInt(selectedReward.cost),
-        selectedReward.id // Pass reward ID for tracking
-      );
+      // Convert cost from tokens to Wei for the contract call
+      const costInWei = ethers.parseEther(selectedReward.cost.toString());
+      const tx = await sys.redeemRewards(costInWei);
 
       await tx.wait();
 
@@ -1128,7 +1144,7 @@ export default function DonorPage() {
                   </div>
                   <div className={styles.statCard}>
                     <span className={styles.statValue}>
-                      {summary.availableRewards}
+                      {formatTokenAmount(summary.availableRewards)}
                     </span>
                     <span className={styles.statLabel}>
                       Available Rewards (BDT)
@@ -1144,10 +1160,10 @@ export default function DonorPage() {
                   */}
                   <div className={styles.statCard}>
                     <span className={styles.statValue}>
-                      {summary.donor.totalRewardsEarned}
+                      {formatTokenAmount(summary.donor.totalRewardsEarned)}
                     </span>
                     <span className={styles.statLabel}>
-                      Total Rewards Earned
+                      Total Rewards Earned (BDT)
                     </span>
                   </div>
                 </div>
@@ -1179,7 +1195,11 @@ export default function DonorPage() {
                       loading ? styles.loading : ""
                     }`}
                     onClick={handleRedeem}
-                    disabled={summary.availableRewards === "0" || loading}
+                    disabled={
+                      parseFloat(
+                        formatTokenAmount(summary.availableRewards)
+                      ) === 0 || loading
+                    }
                   >
                     {loading ? "Processing..." : "Redeem Rewards"}
                   </button>
@@ -1204,15 +1224,17 @@ export default function DonorPage() {
                 <div className={styles.balanceCard}>
                   <span className={styles.balanceLabel}>Available Tokens</span>
                   <span className={styles.balanceValue}>
-                    {summary?.availableRewards || "0"} BDT
+                    {formatTokenAmount(summary?.availableRewards || "0")} BDT
                   </span>
                 </div>
               </div>
 
               <div className={styles.rewardsGrid}>
                 {rewardItems.map((reward) => {
-                  const canAfford =
-                    parseInt(summary?.availableRewards || "0") >= reward.cost;
+                  const availableTokens = parseFloat(
+                    formatTokenAmount(summary?.availableRewards || "0")
+                  );
+                  const canAfford = availableTokens >= reward.cost;
                   return (
                     <div key={reward.id} className={styles.rewardCard}>
                       <div className={styles.rewardIcon}>{reward.icon}</div>
@@ -2040,12 +2062,16 @@ export default function DonorPage() {
                 </p>
                 <div className={styles.balanceInfo}>
                   <span>
-                    Current Balance: {summary?.availableRewards || "0"} BDT
+                    Current Balance:{" "}
+                    {formatTokenAmount(summary?.availableRewards || "0")} BDT
                   </span>
                   <span>
                     After Redemption:{" "}
-                    {parseInt(summary?.availableRewards || "0") -
-                      selectedReward.cost}{" "}
+                    {(
+                      parseFloat(
+                        formatTokenAmount(summary?.availableRewards || "0")
+                      ) - selectedReward.cost
+                    ).toFixed(2)}{" "}
                     BDT
                   </span>
                 </div>

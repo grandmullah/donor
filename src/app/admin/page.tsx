@@ -6,10 +6,24 @@ import { getBrowserProvider, getContract } from "@/lib/eth";
 import DonorDAOGovernanceABI from "@/lib/abis/DonorDAOGovernance";
 import BloodDonorSystemABI from "@/lib/abis/BloodDonorSystem";
 import { CONTRACT_ADDRESSES } from "@/lib/contracts";
+import { ethers } from "ethers";
 import styles from "./page.module.css";
 
 export default function AdminPage() {
   const { address, switchToAddress } = useWallet();
+
+  // Helper function to format Wei values to human-readable token amounts
+  const formatTokenAmount = (weiValue: string | bigint) => {
+    try {
+      const formatted = ethers.formatEther(weiValue);
+      const number = parseFloat(formatted);
+      // Round to 2 decimal places for display
+      return number.toFixed(2);
+    } catch (error) {
+      console.error("Error formatting token amount:", error);
+      return "0.00";
+    }
+  };
 
   // Institution Management
   const [inst, setInst] = useState("");
@@ -924,8 +938,7 @@ export default function AdminPage() {
       <div className={styles.hero}>
         <h1 className={styles.title}>Admin Portal</h1>
         <p className={styles.subtitle}>
-         configure system parameters, and oversee
-          platform governance
+          configure system parameters, and oversee platform governance
         </p>
       </div>
 
@@ -1252,10 +1265,10 @@ export default function AdminPage() {
                           {donor.consistencyScore}%
                         </td>
                         <td className={styles.rewards}>
-                          {parseFloat(donor.totalRewardsEarned) / 1e18} BDT
+                          {formatTokenAmount(donor.totalRewardsEarned)} BDT
                         </td>
                         <td className={styles.redeemed}>
-                          {parseFloat(donor.rewardsRedeemed) / 1e18} BDT
+                          {formatTokenAmount(donor.rewardsRedeemed)} BDT
                         </td>
                         <td>
                           <span
