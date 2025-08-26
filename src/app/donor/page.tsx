@@ -1143,11 +1143,14 @@ export default function DonorPage() {
                     <span className={styles.statLabel}>Total Donations</span>
                   </div>
                   <div className={styles.statCard}>
-                    <span className={styles.statValue}>
-                      {formatTokenAmount(summary.availableRewards)}
-                    </span>
+                    <div style={{ fontWeight: "bold", fontSize: "1.1em" }}>
+                      Raw: {summary.availableRewards}
+                    </div>
+                    <div style={{ fontSize: "0.9em", opacity: 0.8 }}>
+                      {formatTokenAmount(summary.availableRewards)} BDT
+                    </div>
                     <span className={styles.statLabel}>
-                      Available Rewards (BDT)
+                      Available Rewards (Raw Wei)
                     </span>
                   </div>
                   {/* RESEARCH CONSENTS COMMENTED OUT
@@ -1159,11 +1162,14 @@ export default function DonorPage() {
                   </div>
                   */}
                   <div className={styles.statCard}>
-                    <span className={styles.statValue}>
-                      {formatTokenAmount(summary.donor.totalRewardsEarned)}
-                    </span>
+                    <div style={{ fontWeight: "bold", fontSize: "1.1em" }}>
+                      Raw: {summary.donor.totalRewardsEarned}
+                    </div>
+                    <div style={{ fontSize: "0.9em", opacity: 0.8 }}>
+                      {formatTokenAmount(summary.donor.totalRewardsEarned)} BDT
+                    </div>
                     <span className={styles.statLabel}>
-                      Total Rewards Earned (BDT)
+                      Total Rewards Earned (Raw Wei)
                     </span>
                   </div>
                 </div>
@@ -1222,10 +1228,13 @@ export default function DonorPage() {
 
               <div className={styles.rewardsBalance}>
                 <div className={styles.balanceCard}>
-                  <span className={styles.balanceLabel}>Available Tokens</span>
-                  <span className={styles.balanceValue}>
-                    {formatTokenAmount(summary?.availableRewards || "0")} BDT
-                  </span>
+                  <span className={styles.balanceLabel}>Available Tokens (Raw Wei)</span>
+                  <div style={{ fontWeight: "bold", fontSize: "1.2em", marginBottom: "0.5rem" }}>
+                    Raw: {summary?.availableRewards || "0"}
+                  </div>
+                  <div style={{ fontSize: "1em", opacity: 0.8 }}>
+                    Formatted: {formatTokenAmount(summary?.availableRewards || "0")} BDT
+                  </div>
                 </div>
               </div>
 

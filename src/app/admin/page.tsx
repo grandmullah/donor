@@ -1542,8 +1542,8 @@ ${
                       <th>Donations</th>
                       <th>Tier</th>
                       <th>Consistency Score</th>
-                      <th>Rewards Earned</th>
-                      <th>Rewards Redeemed</th>
+                      <th>Rewards Earned (Raw Wei)</th>
+                      <th>Rewards Redeemed (Raw Wei)</th>
                       <th>Status</th>
                     </tr>
                   </thead>
@@ -1608,18 +1608,26 @@ ${
                           {donor.consistencyScore}%
                         </td>
                         <td className={styles.rewards}>
-                          {formatTokenAmount(donor.totalRewardsEarned)} BDT
-                          <br />
-                          <small style={{ fontSize: "0.8em", opacity: 0.7 }}>
+                          <div
+                            style={{ fontWeight: "bold", fontSize: "1.1em" }}
+                          >
                             Raw: {donor.totalRewardsEarned}
-                          </small>
+                          </div>
+                          <div style={{ fontSize: "0.9em", opacity: 0.8 }}>
+                            Formatted:{" "}
+                            {formatTokenAmount(donor.totalRewardsEarned)} BDT
+                          </div>
                         </td>
                         <td className={styles.redeemed}>
-                          {formatTokenAmount(donor.rewardsRedeemed)} BDT
-                          <br />
-                          <small style={{ fontSize: "0.8em", opacity: 0.7 }}>
+                          <div
+                            style={{ fontWeight: "bold", fontSize: "1.1em" }}
+                          >
                             Raw: {donor.rewardsRedeemed}
-                          </small>
+                          </div>
+                          <div style={{ fontSize: "0.9em", opacity: 0.8 }}>
+                            Formatted:{" "}
+                            {formatTokenAmount(donor.rewardsRedeemed)} BDT
+                          </div>
                         </td>
                         <td>
                           <span
