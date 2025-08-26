@@ -25,6 +25,339 @@ export default function AdminPage() {
     }
   };
 
+  // Function to test reward calculation for a specific donor
+  const testRewardCalculation = async (donor: DonorInfo) => {
+    try {
+      const provider = await getBrowserProvider();
+      const sys = getContract(
+        CONTRACT_ADDRESSES.BLOOD_DONOR_SYSTEM,
+        BloodDonorSystemABI,
+        provider
+      );
+
+      // Get current incentive parameters
+      const gov = getContract(
+        CONTRACT_ADDRESSES.DAO_GOVERNANCE,
+        DonorDAOGovernanceABI,
+        provider
+      );
+
+      const [
+        baseReward,
+        consistencyBonus,
+        dataCompletenessBonus,
+        feedbackBonus,
+      ] = await gov.getIncentiveParameters();
+
+      const bloodTypeMultiplier = await gov.getBloodTypeMultiplier(
+        donor.bloodType
+      );
+      const tierMultiplier = await gov.getTierMultiplier(donor.donorTier);
+
+      // Calculate expected reward
+      let expectedReward = baseReward;
+      expectedReward =
+        (expectedReward * BigInt(bloodTypeMultiplier)) / BigInt(100);
+      expectedReward = (expectedReward * BigInt(tierMultiplier)) / BigInt(100);
+
+      // Add bonuses if applicable
+      if (donor.consistencyScore >= 80) {
+        expectedReward += consistencyBonus;
+      }
+
+      // Note: hasCompleteResearchProfile is not available in DonorInfo, so we skip that bonus
+
+      const message = `
+🔍 Reward Calculation Test for ${donor.bloodType} donor:
+• Base Reward: ${formatTokenAmount(baseReward)} BDT
+• Blood Type Multiplier: ${bloodTypeMultiplier}% (${donor.bloodType})
+• Tier Multiplier: ${tierMultiplier}% (Tier ${donor.donorTier})
+• Consistency Score: ${donor.consistencyScore}%
+• Expected Reward: ${formatTokenAmount(expectedReward)} BDT
+• Actual Earned: ${formatTokenAmount(donor.totalRewardsEarned)} BDT
+• Difference: ${formatTokenAmount(
+        expectedReward - BigInt(donor.totalRewardsEarned)
+      )} BDT
+      `;
+
+      console.log(message);
+      alert(message);
+    } catch (error) {
+      console.error("Error testing reward calculation:", error);
+      alert(
+        `Error testing reward calculation: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
+    }
+  };
+
+  // Test contract connection and multipliers
+  const testContractConnection = async () => {
+    try {
+      const provider = await getBrowserProvider();
+      if (!provider) {
+        alert("Please connect your wallet first");
+        return;
+      }
+
+      const gov = getContract(
+        CONTRACT_ADDRESSES.DAO_GOVERNANCE,
+        DonorDAOGovernanceABI,
+        provider
+      );
+
+      // Test getting incentive parameters
+      const [
+        baseReward,
+        consistencyBonus,
+        dataCompletenessBonus,
+        feedbackBonus,
+      ] = await gov.getIncentiveParameters();
+
+      // Test getting blood type multipliers for all types
+      const bloodTypes = ["O-", "AB-", "B-", "A-", "A+", "O+", "B+", "AB+"];
+      const multiplierResults: Record<string, string> = {};
+
+      for (const bloodType of bloodTypes) {
+        try {
+          const multiplier = await gov.getBloodTypeMultiplier(bloodType);
+          multiplierResults[bloodType] = multiplier.toString();
+        } catch (error) {
+          multiplierResults[bloodType] = `Error: ${
+            error instanceof Error ? error.message : "Unknown"
+          }`;
+        }
+      }
+
+      // Test getting tier multipliers
+      const tierResults: Record<string, string> = {};
+      for (let tier = 0; tier <= 4; tier++) {
+        try {
+          const multiplier = await gov.getTierMultiplier(tier);
+          tierResults[tier] = multiplier.toString();
+        } catch (error) {
+          tierResults[tier] = `Error: ${
+            error instanceof Error ? error.message : "Unknown"
+          }`;
+        }
+      }
+
+      const message = `
+🔍 Contract Connection Test Results:
+
+📊 Incentive Parameters:
+• Base Reward: ${formatTokenAmount(baseReward)} BDT
+• Consistency Bonus: ${formatTokenAmount(consistencyBonus)} BDT
+• Data Completeness Bonus: ${formatTokenAmount(dataCompletenessBonus)} BDT
+• Feedback Bonus: ${formatTokenAmount(feedbackBonus)} BDT
+
+🩸 Blood Type Multipliers:
+${Object.entries(multiplierResults)
+  .map(([type, mult]) => `• ${type}: ${mult}`)
+  .join("\n")}
+
+🏆 Tier Multipliers:
+${Object.entries(tierResults)
+  .map(([tier, mult]) => `• Tier ${tier}: ${mult}%`)
+  .join("\n")}
+
+💡 Analysis:
+${
+  Object.entries(multiplierResults).some(([_, mult]) => mult === "0")
+    ? "❌ Some blood types have 0 multipliers - this will cause 0 rewards!"
+    : "✅ All blood types have proper multipliers"
+}
+      `;
+
+      console.log(message);
+      alert(message);
+    } catch (error) {
+      console.error("Error testing contract connection:", error);
+      alert(
+        `Error testing contract connection: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
+    }
+  };
+
+  // Update all blood type multipliers to ensure proper rewards
+  const updateAllBloodTypeMultipliers = async () => {
+    try {
+      const provider = await getBrowserProvider();
+      if (!provider) {
+        alert("Please connect your wallet first");
+        return;
+      }
+
+      const gov = getContract(
+        CONTRACT_ADDRESSES.DAO_GOVERNANCE,
+        DonorDAOGovernanceABI,
+        provider
+      );
+
+      // Define all blood type multipliers (ensuring users get 150-250 BDT rewards)
+      const bloodTypeMultipliers = {
+        "O-": 230, // Universal donor - highest multiplier (230 BDT)
+        "AB-": 250, // Rarest blood type (250 BDT)
+        "B-": 200, // Rare blood type (200 BDT)
+        "A-": 150, // Uncommon blood type (150 BDT)
+        "A+": 120, // Common but in demand (120 BDT)
+        "O+": 130, // Most common, but universal donor (130 BDT)
+        "B+": 140, // Common (140 BDT)
+        "AB+": 100, // Common, but not universal (100 BDT)
+      };
+
+      let successCount = 0;
+      let errorCount = 0;
+      const results: string[] = [];
+
+      // Update each blood type multiplier
+      for (const [bloodType, multiplier] of Object.entries(
+        bloodTypeMultipliers
+      )) {
+        try {
+          const tx = await gov.setBloodTypeMultiplier(bloodType, multiplier);
+          await tx.wait();
+          results.push(`✅ ${bloodType}: ${multiplier}% (${multiplier} BDT)`);
+          successCount++;
+        } catch (error) {
+          results.push(
+            `❌ ${bloodType}: Error - ${
+              error instanceof Error ? error.message : "Unknown"
+            }`
+          );
+          errorCount++;
+        }
+      }
+
+      const message = `
+🚀 Blood Type Multipliers Update Complete!
+
+📊 Results:
+${results.join("\n")}
+
+📈 Summary:
+• Successfully updated: ${successCount} blood types
+• Failed to update: ${errorCount} blood types
+• Total blood types: ${Object.keys(bloodTypeMultipliers).length}
+
+💡 Expected Rewards:
+• O-: 230 BDT (Universal donor)
+• AB-: 250 BDT (Rarest)
+• B-: 200 BDT (Rare)
+• A-: 150 BDT (Uncommon)
+• A+: 120 BDT (Common)
+• O+: 130 BDT (Common)
+• B+: 140 BDT (Common)
+• AB+: 100 BDT (Common)
+
+🎯 Now donors should receive proper rewards between 100-250 BDT!
+      `;
+
+      console.log(message);
+      alert(message);
+    } catch (error) {
+      console.error("Error updating blood type multipliers:", error);
+      alert(
+        `Error updating blood type multipliers: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
+    }
+  };
+
+  // Test reward calculation for all blood types to verify they work
+  const testRewardCalculationForAllTypes = async () => {
+    try {
+      const provider = await getBrowserProvider();
+      if (!provider) {
+        alert("Please connect your wallet first");
+        return;
+      }
+
+      const gov = getContract(
+        CONTRACT_ADDRESSES.DAO_GOVERNANCE,
+        DonorDAOGovernanceABI,
+        provider
+      );
+
+      // Get base parameters
+      const [baseReward, consistencyBonus] = await gov.getIncentiveParameters();
+
+      // Test all blood types with tier 1 (110% multiplier)
+      const bloodTypes = ["O-", "AB-", "B-", "A-", "A+", "O+", "B+", "AB+"];
+      const testResults: string[] = [];
+
+      for (const bloodType of bloodTypes) {
+        try {
+          const bloodTypeMultiplier = await gov.getBloodTypeMultiplier(
+            bloodType
+          );
+          const tierMultiplier = 110; // Tier 1 (Bronze)
+
+          // Calculate expected reward: baseReward * bloodTypeMultiplier / 100 * tierMultiplier / 100
+          let expectedReward = baseReward;
+          expectedReward =
+            (expectedReward * BigInt(bloodTypeMultiplier)) / BigInt(100);
+          expectedReward =
+            (expectedReward * BigInt(tierMultiplier)) / BigInt(100);
+
+          // Add consistency bonus if applicable (assuming 80%+ consistency)
+          if (bloodTypeMultiplier > 0) {
+            // Only add bonus if multiplier is set
+            expectedReward += consistencyBonus;
+          }
+
+          const rewardInTokens = formatTokenAmount(expectedReward);
+          const status = bloodTypeMultiplier > 0 ? "✅" : "❌";
+
+          testResults.push(
+            `${status} ${bloodType}: ${bloodTypeMultiplier}% → ${rewardInTokens} BDT`
+          );
+        } catch (error) {
+          testResults.push(
+            `❌ ${bloodType}: Error - ${
+              error instanceof Error ? error.message : "Unknown"
+            }`
+          );
+        }
+      }
+
+      const message = `
+🧪 Reward Calculation Test Results
+
+📊 Test Parameters:
+• Base Reward: ${formatTokenAmount(baseReward)} BDT
+• Tier: 1 (Bronze - 110% multiplier)
+• Consistency Bonus: ${formatTokenAmount(consistencyBonus)} BDT (if score ≥80%)
+
+🩸 Blood Type Reward Calculations:
+${testResults.join("\n")}
+
+💡 Analysis:
+${
+  testResults.some((result) => result.includes("❌"))
+    ? "❌ Some blood types have issues - check multipliers!"
+    : "✅ All blood types are working correctly!"
+}
+
+🎯 Expected Reward Range: 100-250 BDT per donation
+      `;
+
+      console.log(message);
+      alert(message);
+    } catch (error) {
+      console.error("Error testing reward calculation for all types:", error);
+      alert(
+        `Error testing reward calculation: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
+    }
+  };
+
   // Institution Management
   const [inst, setInst] = useState("");
   const [removeInst, setRemoveInst] = useState("");
@@ -1226,6 +1559,22 @@ export default function AdminPage() {
                         <td className={styles.anonymousId}>
                           {donor.anonymousId.slice(0, 8)}...
                           {donor.anonymousId.slice(-6)}
+                          <br />
+                          <button
+                            onClick={() => testRewardCalculation(donor)}
+                            style={{
+                              fontSize: "0.7em",
+                              padding: "2px 6px",
+                              marginTop: "4px",
+                              background: "#4a90e2",
+                              color: "white",
+                              border: "none",
+                              borderRadius: "4px",
+                              cursor: "pointer",
+                            }}
+                          >
+                            Test Reward
+                          </button>
                         </td>
                         <td>
                           <span
@@ -1266,9 +1615,17 @@ export default function AdminPage() {
                         </td>
                         <td className={styles.rewards}>
                           {formatTokenAmount(donor.totalRewardsEarned)} BDT
+                          <br />
+                          <small style={{ fontSize: "0.8em", opacity: 0.7 }}>
+                            Raw: {donor.totalRewardsEarned}
+                          </small>
                         </td>
                         <td className={styles.redeemed}>
                           {formatTokenAmount(donor.rewardsRedeemed)} BDT
+                          <br />
+                          <small style={{ fontSize: "0.8em", opacity: 0.7 }}>
+                            Raw: {donor.rewardsRedeemed}
+                          </small>
                         </td>
                         <td>
                           <span
@@ -1468,6 +1825,116 @@ export default function AdminPage() {
               Configure reward multipliers based on blood type rarity and
               demand.
             </p>
+
+            {/* Debug Section - Current Reward Parameters */}
+            <div
+              className={styles.debugSection}
+              style={{
+                background: "rgba(255,255,255,0.05)",
+                padding: "1rem",
+                borderRadius: "8px",
+                marginBottom: "1rem",
+                fontSize: "0.9em",
+              }}
+            >
+              <h4 style={{ margin: "0 0 0.5rem 0", color: "#ffd700" }}>
+                🔍 Debug: Current Reward Parameters
+              </h4>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+                  gap: "1rem",
+                }}
+              >
+                <div>
+                  <strong>Base Reward:</strong>{" "}
+                  {formatTokenAmount("100000000000000000000")} BDT (100 tokens)
+                </div>
+                <div>
+                  <strong>Consistency Bonus:</strong>{" "}
+                  {formatTokenAmount("50000000000000000000")} BDT (50 tokens)
+                </div>
+                <div>
+                  <strong>Data Completeness Bonus:</strong>{" "}
+                  {formatTokenAmount("25000000000000000000")} BDT (25 tokens)
+                </div>
+                <div>
+                  <strong>Feedback Bonus:</strong>{" "}
+                  {formatTokenAmount("20000000000000000000")} BDT (20 tokens)
+                </div>
+              </div>
+              <div style={{ marginTop: "1rem" }}>
+                <strong>Blood Type Multipliers:</strong>
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))",
+                    gap: "0.5rem",
+                    marginTop: "0.5rem",
+                  }}
+                >
+                  <span>O-: 230%</span>
+                  <span>AB-: 250%</span>
+                  <span>B-: 250%</span>
+                  <span>A-: 150%</span>
+                  <span style={{ color: "#ff6b6b" }}>A+: NOT SET</span>
+                  <span style={{ color: "#ff6b6b" }}>O+: NOT SET</span>
+                  <span style={{ color: "#ff6b6b" }}>B+: NOT SET</span>
+                  <span style={{ color: "#ff6b6b" }}>AB+: NOT SET</span>
+                </div>
+              </div>
+
+              {/* Test Contract Connection */}
+              <div style={{ marginTop: "1rem" }}>
+                <button
+                  onClick={testContractConnection}
+                  style={{
+                    background: "#4a90e2",
+                    color: "white",
+                    border: "none",
+                    padding: "0.5rem 1rem",
+                    borderRadius: "4px",
+                    cursor: "pointer",
+                    fontSize: "0.9em",
+                    marginRight: "0.5rem",
+                  }}
+                >
+                  🔍 Test Contract Connection & Multipliers
+                </button>
+
+                <button
+                  onClick={updateAllBloodTypeMultipliers}
+                  style={{
+                    background: "#28a745",
+                    color: "white",
+                    border: "none",
+                    padding: "0.5rem 1rem",
+                    borderRadius: "4px",
+                    cursor: "pointer",
+                    fontSize: "0.9em",
+                    marginRight: "0.5rem",
+                  }}
+                >
+                  🚀 Update All Blood Type Multipliers
+                </button>
+
+                <button
+                  onClick={testRewardCalculationForAllTypes}
+                  style={{
+                    background: "#ffc107",
+                    color: "black",
+                    border: "none",
+                    padding: "0.5rem 1rem",
+                    borderRadius: "4px",
+                    cursor: "pointer",
+                    fontSize: "0.9em",
+                  }}
+                >
+                  🧪 Test Reward Calculation for All Types
+                </button>
+              </div>
+            </div>
             <div className={styles.formGrid}>
               <div className={styles.formField}>
                 <label className={styles.label}>Blood Type</label>
